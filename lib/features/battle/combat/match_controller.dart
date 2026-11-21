@@ -5,6 +5,7 @@ import '../characters/hero_definition.dart';
 import 'combat_resolver.dart';
 import 'fighter.dart';
 import 'fighter_input.dart';
+import 'projectile.dart';
 
 enum MatchPhase { intro, fighting, finished }
 
@@ -31,6 +32,12 @@ class MatchController {
   final Fighter player;
   final Fighter opponent;
 
+  /// Superpowers currently flying across the arena.
+  final List<Projectile> projectiles = [];
+
+  /// Projectiles created during the last update, for spawn effects.
+  final List<Projectile> spawned = [];
+
   MatchPhase phase = MatchPhase.intro;
   MatchOutcome? outcome;
   double phaseTime = 0;
@@ -55,6 +62,18 @@ class MatchController {
     player.update(dt, controlsLive ? playerInput : FighterInput.none);
     opponent.update(dt, controlsLive ? opponentInput : FighterInput.none);
 
+    spawned.clear();
+    for (final f in [player, opponent]) {
+      if (f.takeProjectileRequest()) {
+        final p = Projectile(owner: f);
+        projectiles.add(p);
+        spawned.add(p);
+      }
+    }
+    for (final p in projectiles) {
+      p.update(dt);
+    }
+
     if (phase == MatchPhase.intro) {
       if (phaseTime >= GameConstants.introSeconds) {
         _setPhase(MatchPhase.fighting);
@@ -67,11 +86,17 @@ class MatchController {
       final b = CombatResolver.resolve(opponent, player);
       if (a != null) events.add(a);
       if (b != null) events.add(b);
+      for (final p in projectiles) {
+        final target = identical(p.owner, player) ? opponent : player;
+        final hit = CombatResolver.resolveProjectile(p, target);
+        if (hit != null) events.add(hit);
+      }
 
       timeLeft = math.max(0, timeLeft - dt);
       _checkForEnd();
     }
 
+    projectiles.removeWhere((p) => p.done);
     CombatResolver.separate(player, opponent);
     return events;
   }

@@ -6,12 +6,14 @@ enum FighterState {
   falling,
   punching,
   kicking,
+  special,
   blocking,
   hit,
   knockout,
   victory;
 
-  bool get isAttacking => this == punching || this == kicking;
+  bool get isAttacking =>
+      this == punching || this == kicking || this == special;
   bool get isAirborneState => this == jumping || this == falling;
   bool get isFinal => this == knockout || this == victory;
 
@@ -41,6 +43,7 @@ class FighterStateMachine {
 
   static const Map<FighterState, Set<FighterState>> _allowed = {
     FighterState.idle: {
+      FighterState.special,
       FighterState.walking,
       FighterState.jumping,
       FighterState.falling,
@@ -52,6 +55,7 @@ class FighterStateMachine {
       FighterState.victory,
     },
     FighterState.walking: {
+      FighterState.special,
       FighterState.idle,
       FighterState.jumping,
       FighterState.falling,
@@ -95,11 +99,18 @@ class FighterStateMachine {
       FighterState.victory,
     },
     FighterState.blocking: {
+      FighterState.special,
       FighterState.idle,
       FighterState.walking,
       FighterState.jumping,
       FighterState.punching,
       FighterState.kicking,
+      FighterState.hit,
+      FighterState.knockout,
+      FighterState.victory,
+    },
+    FighterState.special: {
+      FighterState.idle,
       FighterState.hit,
       FighterState.knockout,
       FighterState.victory,

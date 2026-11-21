@@ -40,6 +40,13 @@ void main() {
     await pumpFor(tester, const Duration(milliseconds: 400));
     expect(find.byType(CharacterSelectScreen), findsOneWidget);
 
+    await tester.tap(find.byKey(const ValueKey('player_solar_man')));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('next_step')));
+    await pumpFor(tester, const Duration(milliseconds: 300));
+    expect(find.text(AppStrings.chooseOpponent), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('opponent_thunder_giant')));
+    await tester.pump();
     await tester.tap(find.byKey(const ValueKey('start_battle')));
     await pumpFor(tester, const Duration(milliseconds: 400));
     expect(find.byType(VersusScreen), findsOneWidget);
@@ -51,6 +58,7 @@ void main() {
     expect(find.byType(BattleScreen), findsOneWidget);
     expect(find.text(AppStrings.punch.toUpperCase()), findsOneWidget);
     expect(find.text(AppStrings.kick.toUpperCase()), findsOneWidget);
+    expect(find.text(AppStrings.power.toUpperCase()), findsOneWidget);
 
     // Pause menu works.
     await tester.tap(find.byKey(const ValueKey('pause_button')));

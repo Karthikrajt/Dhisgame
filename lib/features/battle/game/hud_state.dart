@@ -8,6 +8,8 @@ class HudState {
     required this.timeLeft,
     required this.phase,
     required this.phaseTime,
+    required this.playerEnergy,
+    required this.opponentEnergy,
     this.outcome,
   });
 
@@ -17,12 +19,16 @@ class HudState {
   final MatchPhase phase;
   final double phaseTime;
   final MatchOutcome? outcome;
+  final double playerEnergy;
+  final double opponentEnergy;
 
   /// Only rebuild the HUD when something visible changed.
   bool sameAs(HudState o) =>
       (playerHealth - o.playerHealth).abs() < 0.01 &&
       (opponentHealth - o.opponentHealth).abs() < 0.01 &&
       timeLeft == o.timeLeft &&
+      (playerEnergy - o.playerEnergy).abs() < 0.01 &&
+      (opponentEnergy - o.opponentEnergy).abs() < 0.01 &&
       phase == o.phase &&
       outcome == o.outcome &&
       _banner(phaseTime) == _banner(o.phaseTime);

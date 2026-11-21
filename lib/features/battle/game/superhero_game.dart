@@ -17,6 +17,7 @@ import '../combat/match_controller.dart';
 import '../components/fighter_component.dart';
 import '../controls/control_input.dart';
 import '../effects/hit_effects.dart';
+import '../effects/power_effects.dart';
 import 'hud_state.dart';
 
 /// The Flame game that hosts one battle.
@@ -99,6 +100,9 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
 
     final aiInput = ai.think(step, match.opponent, match.player);
     final events = match.update(step, input.consume(step), aiInput);
+    for (final p in match.spawned) {
+      world.add(ProjectileComponent(p));
+    }
     for (final e in events) {
       _spawnHitEffect(e);
     }
@@ -131,7 +135,13 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
     if (e.blocked) {
       world.add(BlockRipple(at: at));
     } else {
-      world.add(HitBurst(at: at, big: e.knockout || e.damage >= 9));
+      world.add(
+        HitBurst(
+          at: at,
+          big: e.knockout || e.damage >= 9,
+          color: e.isSpecial ? e.attacker.hero.special.glow : null,
+        ),
+      );
     }
   }
 
@@ -143,13 +153,16 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
       phase: match.phase,
       phaseTime: match.phaseTime,
       outcome: match.outcome,
+      playerEnergy: match.player.energyFraction,
+      opponentEnergy: match.opponent.energyFraction,
     );
     final current = hud.value;
     if (current == null || !current.sameAs(next)) hud.value = next;
   }
 
   /// Keyboard support for emulators and Chromebooks:
-  /// arrows or A/D to move, W/Up/Space to jump, J punch, K kick, L block.
+  /// arrows or A/D to move, W/Up/Space to jump, J punch, K kick, L block,
+  /// I or U superpower.
   static final Map<LogicalKeyboardKey, ControlButton> keyMap = {
     LogicalKeyboardKey.arrowLeft: ControlButton.left,
     LogicalKeyboardKey.keyA: ControlButton.left,
@@ -161,6 +174,8 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
     LogicalKeyboardKey.keyJ: ControlButton.punch,
     LogicalKeyboardKey.keyK: ControlButton.kick,
     LogicalKeyboardKey.keyL: ControlButton.block,
+    LogicalKeyboardKey.keyI: ControlButton.special,
+    LogicalKeyboardKey.keyU: ControlButton.special,
   };
 
   @override

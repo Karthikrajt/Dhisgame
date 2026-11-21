@@ -6,10 +6,13 @@ import 'package:flame/components.dart';
 /// A cartoon "pow" burst where a hit lands. Grows and fades over a quarter
 /// of a second: bright enough to read, but never a full-screen flash.
 class HitBurst extends PositionComponent {
-  HitBurst({required Vector2 at, this.big = false})
+  HitBurst({required Vector2 at, this.big = false, this.color})
     : super(position: at, priority: 20);
 
   final bool big;
+
+  /// Optional tint for superpower hits.
+  final Color? color;
   double _t = 0;
   static const double _life = 0.32;
   final Paint _paint = Paint();
@@ -38,7 +41,7 @@ class HitBurst extends PositionComponent {
     path.close();
     _paint
       ..style = PaintingStyle.fill
-      ..color = Color.fromRGBO(255, 214, 74, alpha);
+      ..color = (color ?? const Color(0xFFFFD64A)).withValues(alpha: alpha);
     canvas.drawPath(path, _paint);
     _paint
       ..style = PaintingStyle.stroke

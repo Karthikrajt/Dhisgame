@@ -4,7 +4,20 @@ A family-friendly 2D one-on-one superhero fighting game for Android, built
 with Flutter and the Flame engine. Player versus computer, fully offline, no
 ads, no purchases, no accounts.
 
-**Status: Milestone 1, playable fighting prototype.**
+**Status: Milestone 1 plus superpowers and all five heroes.**
+
+| Hero | Superpower |
+| --- | --- |
+| Spider Shadow | **Web Shot**: a sticky web that holds the foe in place |
+| Dark Knight | **Night Strike**: zooms across the arena wrapped in moonlight |
+| Solar Man | **Sun Beam**: a warm golden beam of sunshine |
+| Thunder Giant | **Thunder Stomp**: a thunder wave rolls along the ground (jump over it!) |
+| Iron Falcon | **Plasma Blast**: a bright plasma ball from the energy core |
+
+Superpowers are kept simple for young children: the power meter under each
+health bar fills up by itself (faster when you land or take hits). When it
+glows gold, tap the big **POWER** star. Heroes can't be interrupted while
+powering up, so the move always comes out.
 
 | Main menu | Hero select | Battle |
 | --- | --- | --- |
@@ -14,11 +27,11 @@ ads, no purchases, no accounts.
 
 - Landscape-only Android app, immersive full screen.
 - Main menu with a How to Play guide.
-- Character selection with live animated previews: pick your hero, the
-  computer's hero and the difficulty (Easy by default).
+- Two-step character selection with big animated hero cards: tap your
+  hero, tap who to fight (or Surprise Me), pick a difficulty (Easy by default).
 - Animated "HERO VS HERO" introduction.
-- Two original heroes, **Spider Shadow** and **Dark Knight**, with different
-  stats (speed, jump height, damage, reach).
+- Five original heroes in a cute chibi style, each with different stats
+  (speed, jump height, damage, reach) and their own superpower.
 - One arena, **Neon City Rooftop**, with parallax skyline layers, slowly
   glowing signs, drifting clouds, a spinning roof fan and floating light motes.
 - Walking, jumping with air control, punch, kick and block.
@@ -40,13 +53,14 @@ ads, no purchases, no accounts.
 | Move left / right (hold) | Punch (tap or hold to repeat) |
 | Jump | Kick |
 | | Block (hold) |
+| | POWER star (when the meter is full) |
 
 Each on-screen button tracks its own fingers, so moving and attacking at the
 same time works without touches interfering. Quick taps are buffered for a few
 frames so they are never lost.
 
 Keyboard (emulator or Chromebook): arrows or A/D to move, W/Up/Space to jump,
-J punch, K kick, L block.
+J punch, K kick, L block, I or U superpower.
 
 ## Running
 
@@ -121,7 +135,7 @@ ads, links, chat or purchases.
 ## Roadmap
 
 1. **Playable prototype** (this milestone).
-2. Complete combat: all five heroes, special powers and energy, more AI depth.
+2. Complete combat: all five heroes and superpowers (done), more moves per hero, more AI depth.
 3. Content: five arenas, tournament, boss challenge, practice, rewards.
 4. Polish: sprite sheet art, sound, music, English and Tamil localization.
 5. Release: device testing, performance, signed release APK.

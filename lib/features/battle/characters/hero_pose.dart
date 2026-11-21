@@ -3,6 +3,7 @@ import 'dart:ui' show lerpDouble;
 
 import '../combat/attack_data.dart';
 import '../combat/fighter_state.dart';
+import 'hero_definition.dart';
 
 /// Facial expression drawn on the hero's mask.
 enum EyeMood { normal, focused, hurt, dizzy, happy }
@@ -256,6 +257,95 @@ class HeroPose {
     mood: EyeMood.happy,
   );
 
+  static const HeroPose powerCharge = HeroPose(
+    frontHip: 0.55,
+    frontKnee: 0.8,
+    backHip: -0.45,
+    backKnee: 0.6,
+    frontShoulder: -0.5,
+    frontElbow: 1.7,
+    backShoulder: -0.7,
+    backElbow: 1.6,
+    lean: -0.12,
+    mood: EyeMood.focused,
+  );
+
+  static const HeroPose powerBlast = HeroPose(
+    frontHip: 0.6,
+    frontKnee: 0.4,
+    backHip: -0.65,
+    backKnee: 0.1,
+    frontShoulder: 1.62,
+    frontElbow: 0.0,
+    backShoulder: 1.45,
+    backElbow: 0.15,
+    lean: 0.18,
+    mood: EyeMood.focused,
+  );
+
+  static const HeroPose stompCharge = HeroPose(
+    frontHip: 1.4,
+    frontKnee: 1.7,
+    backHip: -0.05,
+    backKnee: 0.15,
+    frontShoulder: 2.7,
+    frontElbow: 0.4,
+    backShoulder: 2.4,
+    backElbow: 0.5,
+    lean: -0.1,
+    mood: EyeMood.focused,
+  );
+
+  static const HeroPose stompSlam = HeroPose(
+    frontHip: 0.55,
+    frontKnee: 0.5,
+    backHip: -0.55,
+    backKnee: 0.8,
+    frontShoulder: 0.35,
+    frontElbow: 0.2,
+    backShoulder: 0.2,
+    backElbow: 0.2,
+    lean: 0.25,
+    squash: 0.94,
+    mood: EyeMood.focused,
+  );
+
+  static const HeroPose dashStrike = HeroPose(
+    frontHip: 0.35,
+    frontKnee: 0.6,
+    backHip: -0.95,
+    backKnee: 0.5,
+    frontShoulder: 1.65,
+    frontElbow: 0.0,
+    backShoulder: -0.6,
+    backElbow: 0.4,
+    lean: 0.45,
+    mood: EyeMood.focused,
+  );
+
+  static HeroPose _specialPose(SpecialKind kind, double t) {
+    final (charge, release) = switch (kind) {
+      SpecialKind.shockwave => (stompCharge, stompSlam),
+      SpecialKind.dash => (powerCharge, dashStrike),
+      SpecialKind.projectile || SpecialKind.beam => (powerCharge, powerBlast),
+    };
+    const c = SpecialPower.chargeTime;
+    if (t < c) {
+      // A small steady shake while powering up.
+      final p = HeroPose.lerp(guard, charge, _ease(t / (c * 0.6)));
+      return p.copyWith(bob: math.sin(t * 40) * 1.5);
+    }
+    final hold = kind == SpecialKind.dash ? SpecialPower.dashTime : 0.18;
+    if (t < c + hold) {
+      return HeroPose.lerp(charge, release, _ease((t - c) / 0.07));
+    }
+    return HeroPose.lerp(
+      release,
+      guard,
+      _ease((t - c - hold) / SpecialPower.recoveryTime),
+    );
+  }
+
   // ---- Pose selection ---------------------------------------------------
 
   /// Builds the pose for a fighter in [state].
@@ -268,6 +358,7 @@ class HeroPose {
     AttackData? attack,
     double moveDir = 1,
     double walkSpeed = 260,
+    SpecialKind specialKind = SpecialKind.projectile,
   }) {
     switch (state) {
       case FighterState.idle:
@@ -282,6 +373,8 @@ class HeroPose {
         return _attackPose(attack, stateTime, punchWind, punchHit);
       case FighterState.kicking:
         return _attackPose(attack, stateTime, kickWind, kickHit);
+      case FighterState.special:
+        return _specialPose(specialKind, stateTime);
       case FighterState.blocking:
         return HeroPose.lerp(guard, block, _ease(stateTime / 0.08));
       case FighterState.hit:

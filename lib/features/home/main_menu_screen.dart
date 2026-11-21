@@ -8,6 +8,7 @@ import '../../shared/widgets/comic_text.dart';
 import '../../shared/widgets/hero_preview.dart';
 import '../../shared/widgets/menu_background.dart';
 import '../battle/characters/hero_roster.dart';
+import '../battle/combat/fighter_state.dart';
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
@@ -49,12 +50,23 @@ class MainMenuScreen extends StatelessWidget {
                 ),
               ),
               Expanded(
-                flex: 5,
+                flex: 6,
                 child: Row(
                   children: [
-                    Expanded(child: HeroPreview(hero: HeroRoster.all.first)),
-                    Expanded(
-                      child: HeroPreview(hero: HeroRoster.all.last, facing: -1),
+                    const Expanded(
+                      child: HeroPreview(hero: HeroRoster.spiderShadow),
+                    ),
+                    const Expanded(
+                      child: HeroPreview(
+                        hero: HeroRoster.solarMan,
+                        state: FighterState.victory,
+                      ),
+                    ),
+                    const Expanded(
+                      child: HeroPreview(
+                        hero: HeroRoster.thunderGiant,
+                        facing: -1,
+                      ),
                     ),
                   ],
                 ),

@@ -6,6 +6,7 @@ import '../../../core/constants/game_constants.dart';
 import '../characters/hero_pose.dart';
 import '../characters/hero_renderer.dart';
 import '../combat/fighter.dart';
+import '../effects/power_effects.dart';
 
 /// Draws a [Fighter] model with the vector hero renderer.
 class FighterComponent extends PositionComponent {
@@ -36,6 +37,7 @@ class FighterComponent extends PositionComponent {
       attack: f.currentAttack,
       moveDir: moving,
       walkSpeed: f.hero.walkSpeed,
+      specialKind: f.hero.special.kind,
     );
 
     canvas.save();
@@ -43,6 +45,7 @@ class FighterComponent extends PositionComponent {
     canvas.scale(f.facing * s, s);
     // Invulnerability is shown with a steady soft transparency instead of
     // blinking, so the screen never flickers.
+    PowerAura.paintBehind(canvas, f);
     final dim = f.invulnerable > 0 && !f.state.isFinal;
     if (dim) {
       canvas.saveLayer(null, _flash..color = const Color(0xC0FFFFFF));
@@ -55,6 +58,7 @@ class FighterComponent extends PositionComponent {
       lift: (GameConstants.groundY - f.y) / s,
     );
     if (dim) canvas.restore();
+    PowerAura.paintFront(canvas, f);
     canvas.restore();
 
     if (debugBoxes) _renderDebug(canvas);

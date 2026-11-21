@@ -2,10 +2,20 @@ import 'dart:math' as math;
 
 import '../combat/fighter.dart';
 import '../combat/fighter_input.dart';
+import '../characters/hero_definition.dart';
 import 'ai_difficulty.dart';
 
 /// High level intent of the computer opponent.
-enum AiIntent { wait, approach, keepDistance, retreat, attack, block, jump }
+enum AiIntent {
+  wait,
+  approach,
+  keepDistance,
+  retreat,
+  attack,
+  block,
+  jump,
+  special,
+}
 
 /// A simple, readable fighting AI.
 ///
@@ -72,6 +82,12 @@ class AiController {
       _intent = AiIntent.retreat;
       return;
     }
+    if (self.energyFull &&
+        _specialMakesSense(self, distance) &&
+        _random.nextDouble() < difficulty.specialChance) {
+      _intent = AiIntent.special;
+      return;
+    }
     if (_random.nextDouble() < difficulty.jumpChance) {
       _intent = AiIntent.jump;
       return;
@@ -92,6 +108,12 @@ class AiController {
     _intent = _random.nextDouble() < 0.5 ? AiIntent.wait : AiIntent.approach;
   }
 
+  bool _specialMakesSense(Fighter self, double distance) =>
+      switch (self.hero.special.kind) {
+        SpecialKind.dash => distance < 650,
+        _ => distance > 110,
+      };
+
   FighterInput _act(Fighter self, Fighter target, double distance) {
     final toward = target.x > self.x ? 1 : -1;
     switch (_intent) {
@@ -107,6 +129,10 @@ class AiController {
         return _move(-toward);
       case AiIntent.block:
         return const FighterInput(block: true);
+      case AiIntent.special:
+        if (_attackIssued) return FighterInput.none;
+        _attackIssued = true;
+        return const FighterInput(special: true);
       case AiIntent.jump:
         _intent = AiIntent.approach;
         return FighterInput(jump: true, left: toward < 0, right: toward > 0);

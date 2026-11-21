@@ -12,12 +12,13 @@ import 'hero_pose.dart';
 abstract final class HeroRenderer {
   static const Color outline = Color(0xFF12142A);
 
-  static const double thigh = 52;
-  static const double shin = 50;
-  static const double torsoLength = 76;
-  static const double upperArm = 40;
-  static const double foreArm = 37;
-  static const double headRadius = 30;
+  // Chibi proportions: a big friendly head on a short, chunky body.
+  static const double thigh = 38;
+  static const double shin = 36;
+  static const double torsoLength = 58;
+  static const double upperArm = 30;
+  static const double foreArm = 28;
+  static const double headRadius = 42;
 
   static final Paint _outlinePaint = Paint()
     ..color = outline
@@ -71,6 +72,10 @@ abstract final class HeroRenderer {
     _leg(canvas, s.backHip, s.backKnee, s.backFoot, look, bulk, shade: true);
 
     _leg(canvas, s.frontHip, s.frontKnee, s.frontFoot, look, bulk);
+    if (look.backStyle == BackStyle.jetWings && !pose.grounded) {
+      _rocketFlame(canvas, s.backFoot, time, 0.8);
+      _rocketFlame(canvas, s.frontFoot, time + 0.4, 1);
+    }
     _torso(canvas, look, s);
     _head(canvas, look, s, pose, time);
 
@@ -195,6 +200,7 @@ abstract final class HeroRenderer {
     if (n.dx * _light.dx + n.dy * _light.dy > 0) n = -n;
     final mid = Offset.lerp(a, b, 0.45)!;
     final r = math.max(rm, math.max(ra, rb)) * 1.2;
+    _fill.color = const Color(0xFF000000);
     _fill.shader = Gradient.linear(
       mid + n * r,
       mid - n * r,
@@ -272,6 +278,7 @@ abstract final class HeroRenderer {
     final rr = RRect.fromRectAndRadius(rect, Radius.circular(r * 0.8));
     _fill.color = outline;
     canvas.drawRRect(rr.inflate(3.5), _fill);
+    _fill.color = const Color(0xFF000000);
     _fill.shader = Gradient.linear(
       Offset(0, -r),
       Offset(0, r),
@@ -424,6 +431,7 @@ abstract final class HeroRenderer {
     _outlinePaint.strokeWidth = 7;
     canvas.drawPath(path, _outlinePaint);
     final c = Offset.lerp(hip, top, 0.6)!;
+    _fill.color = const Color(0xFF000000);
     _fill.shader = Gradient.linear(
       c + _light * 40,
       c - _light * 40,
@@ -532,6 +540,50 @@ abstract final class HeroRenderer {
         _fill.color = look.emblem;
         canvas.drawPath(crescent, _fill);
         _star(canvas, const Offset(7, -1), 5.5, look.emblem);
+      case EmblemStyle.sunburst:
+        // Golden sun with eight friendly rays.
+        final rays = Path();
+        for (var i = 0; i < 16; i++) {
+          final rr = i.isEven ? 16.0 : 10.0;
+          final a = i * math.pi / 8;
+          final p = Offset(math.cos(a) * rr, math.sin(a) * rr);
+          i == 0 ? rays.moveTo(p.dx, p.dy) : rays.lineTo(p.dx, p.dy);
+        }
+        rays.close();
+        _outlinePaint.strokeWidth = 4;
+        canvas.drawPath(rays, _outlinePaint);
+        _fill.color = look.emblem;
+        canvas.drawPath(rays, _fill);
+        _fill.color = _lighten(look.emblem, 0.45);
+        canvas.drawCircle(Offset.zero, 6.5, _fill);
+      case EmblemStyle.lightning:
+        final bolt = Path()
+          ..moveTo(3, -16)
+          ..lineTo(-9, 2)
+          ..lineTo(-1, 2)
+          ..lineTo(-5, 16)
+          ..lineTo(9, -3)
+          ..lineTo(1, -3)
+          ..close();
+        _outlinePaint.strokeWidth = 4;
+        canvas.drawPath(bolt, _outlinePaint);
+        _fill.color = look.emblem;
+        canvas.drawPath(bolt, _fill);
+      case EmblemStyle.energyCore:
+        // Glowing chest core: a steady glow, never blinking.
+        _fill
+          ..color = _withAlpha(look.emblem, 0.6)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
+        canvas.drawCircle(Offset.zero, 15, _fill);
+        _fill.maskFilter = null;
+        _fill.color = outline;
+        canvas.drawCircle(Offset.zero, 13, _fill);
+        _fill.color = const Color(0xFF8A8F99);
+        canvas.drawCircle(Offset.zero, 10.5, _fill);
+        _fill.color = look.emblem;
+        canvas.drawCircle(Offset.zero, 8, _fill);
+        _fill.color = const Color(0xFFFFFFFF);
+        canvas.drawCircle(Offset.zero, 3.5, _fill);
     }
     canvas.restore();
   }
@@ -601,7 +653,95 @@ abstract final class HeroRenderer {
           ..color = _darken(look.back, 0.35)
           ..strokeWidth = 5;
         canvas.drawLine(a, b, _stroke);
+      case BackStyle.flowCape:
+        // Long cape that flows and ripples gently behind the hero.
+        final side = Offset(-up.dy, up.dx);
+        final top = neck + up * -6;
+        final a = top + side * 16;
+        final b = top - side * 20;
+        final w1 = math.sin(t * 3.0) * 6;
+        final w2 = math.sin(t * 3.0 + 1.4) * 8;
+        final hemY = s.pelvis.dy + 52;
+        final path = Path()
+          ..moveTo(a.dx, a.dy)
+          ..quadraticBezierTo(a.dx - 10, hemY - 50, a.dx - 18 + w1, hemY)
+          ..quadraticBezierTo(
+            a.dx - 40,
+            hemY + 10 + w1,
+            a.dx - 62 + w2,
+            hemY + 2,
+          )
+          ..quadraticBezierTo(
+            a.dx - 84 + w2,
+            hemY + 8,
+            a.dx - 92 + w2,
+            hemY - 6,
+          )
+          ..quadraticBezierTo(b.dx - 50, b.dy + 30, b.dx, b.dy)
+          ..close();
+        _outlinePaint.strokeWidth = 7;
+        canvas.drawPath(path, _outlinePaint);
+        _fill.color = const Color(0xFF000000);
+        _fill.shader = Gradient.linear(a, Offset(a.dx - 80, hemY), [
+          look.back,
+          _darken(look.back, 0.3),
+        ]);
+        canvas.drawPath(path, _fill);
+        _fill.shader = null;
+        _stroke
+          ..color = _withAlpha(_darken(look.back, 0.4), 0.6)
+          ..strokeWidth = 3;
+        canvas.drawLine(
+          Offset(a.dx - 30, a.dy + 30),
+          Offset(a.dx - 44 + w1, hemY - 4),
+          _stroke,
+        );
+      case BackStyle.none:
+        break;
+      case BackStyle.jetWings:
+        // A compact jet pack with two swept golden wings.
+        final side = Offset(-up.dy, up.dx);
+        final base = Offset.lerp(s.pelvis, neck, 0.7)! - side * 14;
+        for (final k in [0.0, 1.0]) {
+          final tip = base + up * (34 - k * 18) + Offset(-48 + k * 10, 0);
+          final wing = Path()
+            ..moveTo(base.dx, base.dy - 10 + k * 14)
+            ..lineTo(tip.dx, tip.dy)
+            ..lineTo(base.dx - 8, base.dy + 10 + k * 14)
+            ..close();
+          _outlinePaint.strokeWidth = 6;
+          canvas.drawPath(wing, _outlinePaint);
+          _fill.color = k == 0 ? look.back : _darken(look.back, 0.2);
+          canvas.drawPath(wing, _fill);
+        }
+        final pack = RRect.fromRectAndRadius(
+          Rect.fromCenter(center: base, width: 22, height: 40),
+          const Radius.circular(8),
+        );
+        _fill.color = outline;
+        canvas.drawRRect(pack.inflate(3.5), _fill);
+        _fill.color = _lighten(look.suitShade, 0.1);
+        canvas.drawRRect(pack, _fill);
     }
+  }
+
+  static void _rocketFlame(Canvas canvas, Offset foot, double t, double k) {
+    final len = (26 + math.sin(t * 9) * 4) * k;
+    final c = foot + const Offset(0, 12);
+    final path = Path()
+      ..moveTo(c.dx - 9, c.dy)
+      ..quadraticBezierTo(c.dx - 6, c.dy + len * 0.6, c.dx, c.dy + len)
+      ..quadraticBezierTo(c.dx + 6, c.dy + len * 0.6, c.dx + 9, c.dy)
+      ..close();
+    _fill.color = const Color(0xCCFF9800);
+    canvas.drawPath(path, _fill);
+    canvas.save();
+    canvas.translate(c.dx, c.dy);
+    canvas.scale(0.55, 0.6);
+    canvas.translate(-c.dx, -c.dy);
+    _fill.color = const Color(0xEEFFF59D);
+    canvas.drawPath(path, _fill);
+    canvas.restore();
   }
 
   static void _head(
@@ -628,6 +768,12 @@ abstract final class HeroRenderer {
         _goggleHood(canvas, look, r, pose.mood);
       case HeadStyle.crestHelm:
         _crestHelm(canvas, look, r, pose.mood);
+      case HeadStyle.sunHelm:
+        _sunHelm(canvas, look, r, pose.mood);
+      case HeadStyle.headband:
+        _headband(canvas, look, r, pose.mood);
+      case HeadStyle.falconHelm:
+        _falconHelm(canvas, look, r, pose.mood);
     }
     canvas.restore();
   }
@@ -642,11 +788,17 @@ abstract final class HeroRenderer {
       final skull = Path()
         ..addOval(Rect.fromCircle(center: Offset.zero, radius: r + grow));
       final jaw = Path()
-        ..addRRect(RRect.fromRectAndRadius(
-          Rect.fromLTRB(-r * 0.55 - grow, r * 0.05 - grow, r * 1.05 + grow,
-              r * 1.08 + grow),
-          Radius.circular(r * 0.5 + grow),
-        ));
+        ..addRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTRB(
+              -r * 0.55 - grow,
+              r * 0.05 - grow,
+              r * 1.05 + grow,
+              r * 1.08 + grow,
+            ),
+            Radius.circular(r * 0.5 + grow),
+          ),
+        );
       return Path.combine(PathOperation.union, skull, jaw);
     });
   }
@@ -693,9 +845,7 @@ abstract final class HeroRenderer {
 
     // Shading on the back of the head.
     canvas.save();
-    canvas.clipPath(
-      _headShape(r),
-    );
+    canvas.clipPath(_headShape(r));
     _fill.color = _withAlpha(look.suitShade, 0.8);
     canvas.drawCircle(Offset(-r * 1.1, r * 0.2), r * 0.8, _fill);
     canvas.restore();
@@ -731,9 +881,7 @@ abstract final class HeroRenderer {
     canvas.drawPath(_headShape(r), _fill);
 
     canvas.save();
-    canvas.clipPath(
-      _headShape(r),
-    );
+    canvas.clipPath(_headShape(r));
     _fill.color = _withAlpha(look.suitShade, 0.85);
     canvas.drawCircle(Offset(-r * 1.05, r * 0.1), r * 0.85, _fill);
     // Light jaw guard.
@@ -768,6 +916,226 @@ abstract final class HeroRenderer {
     );
   }
 
+  static void _headBase(Canvas canvas, Color color, Color shade, double r) {
+    _fill.color = outline;
+    canvas.drawPath(_headShape(r, grow: 3.5), _fill);
+    _fill.color = color;
+    canvas.drawPath(_headShape(r), _fill);
+    canvas.save();
+    canvas.clipPath(_headShape(r));
+    _fill.color = _withAlpha(shade, 0.8);
+    canvas.drawCircle(Offset(-r * 1.1, r * 0.25), r * 0.8, _fill);
+    _fill.color = const Color(0x33FFFFFF);
+    canvas.drawCircle(Offset(r * 0.15, -r * 0.55), r * 0.35, _fill);
+    canvas.restore();
+  }
+
+  static void _sunHelm(Canvas canvas, HeroLook look, double r, EyeMood mood) {
+    // Three sun-ray spikes crowning a golden helmet.
+    for (final (x, h) in [(-0.55, 1.35), (-0.05, 1.55), (0.45, 1.3)]) {
+      final ray = Path()
+        ..moveTo(r * (x - 0.2), -r * 0.75)
+        ..lineTo(r * x, -r * h)
+        ..lineTo(r * (x + 0.2), -r * 0.75)
+        ..close();
+      _outlinePaint.strokeWidth = 6;
+      canvas.drawPath(ray, _outlinePaint);
+      _fill.color = look.trim;
+      canvas.drawPath(ray, _fill);
+    }
+    _headBase(canvas, look.suit, look.suitShade, r);
+    canvas.save();
+    canvas.clipPath(_headShape(r));
+    _fill.color = look.trim;
+    canvas.drawRect(
+      Rect.fromLTRB(-r * 1.2, -r * 1.2, r * 1.2, -r * 0.42),
+      _fill,
+    );
+    _fill.color = _darken(look.trim, 0.2);
+    canvas.drawRect(
+      Rect.fromLTRB(-r * 1.2, -r * 0.5, r * 1.2, -r * 0.4),
+      _fill,
+    );
+    canvas.restore();
+    _eyes(
+      canvas,
+      look,
+      mood,
+      front: Offset(r * 0.42, r * 0.05),
+      back: Offset(-r * 0.12, r * 0.05),
+      frontRadius: r * 0.3,
+      backRadius: r * 0.25,
+      round: true,
+    );
+    _smile(canvas, Offset(r * 0.38, r * 0.62), r * 0.22, mood);
+  }
+
+  static void _headband(Canvas canvas, HeroLook look, double r, EyeMood mood) {
+    final skin = look.skin ?? look.suit;
+    // Spiky tuft of hair.
+    final hair = Path()..moveTo(-r * 0.9, -r * 0.45);
+    for (var i = 0; i < 5; i++) {
+      final x0 = -r * 0.9 + i * r * 0.36;
+      hair
+        ..lineTo(x0 + r * 0.12, -r * (1.25 + (i.isEven ? 0.1 : 0)))
+        ..lineTo(x0 + r * 0.36, -r * 0.7);
+    }
+    hair.close();
+    _outlinePaint.strokeWidth = 6;
+    canvas.drawPath(hair, _outlinePaint);
+    _fill.color = const Color(0xFF3B2A5C);
+    canvas.drawPath(hair, _fill);
+
+    _headBase(canvas, skin, _darken(skin, 0.3), r);
+    canvas.save();
+    canvas.clipPath(_headShape(r));
+    final band = Rect.fromLTRB(-r * 1.2, -r * 0.62, r * 1.2, -r * 0.3);
+    _fill.color = outline;
+    canvas.drawRect(band.inflate(2.5), _fill);
+    _fill.color = look.suit;
+    canvas.drawRect(band, _fill);
+    canvas.restore();
+    // Little lightning bolt on the band.
+    canvas.save();
+    canvas.translate(r * 0.35, -r * 0.46);
+    canvas.scale(0.55);
+    final bolt = Path()
+      ..moveTo(3, -16)
+      ..lineTo(-9, 2)
+      ..lineTo(-1, 2)
+      ..lineTo(-5, 16)
+      ..lineTo(9, -3)
+      ..lineTo(1, -3)
+      ..close();
+    _fill.color = look.emblem;
+    canvas.drawPath(bolt, _fill);
+    canvas.restore();
+
+    _eyes(
+      canvas,
+      look,
+      mood,
+      front: Offset(r * 0.42, r * 0.02),
+      back: Offset(-r * 0.1, r * 0.02),
+      frontRadius: r * 0.27,
+      backRadius: r * 0.22,
+      round: true,
+      lineColor: outline,
+      thickBrows: true,
+    );
+    _smile(canvas, Offset(r * 0.38, r * 0.6), r * 0.3, mood, teeth: true);
+  }
+
+  static void _falconHelm(
+    Canvas canvas,
+    HeroLook look,
+    double r,
+    EyeMood mood,
+  ) {
+    // Two swept-back wing fins.
+    for (final k in [0.0, 1.0]) {
+      final fin = Path()
+        ..moveTo(-r * 0.3, -r * (0.75 - k * 0.3))
+        ..lineTo(-r * (1.45 - k * 0.15), -r * (1.1 - k * 0.35))
+        ..lineTo(-r * 0.8, -r * (0.35 - k * 0.3))
+        ..close();
+      _outlinePaint.strokeWidth = 6;
+      canvas.drawPath(fin, _outlinePaint);
+      _fill.color = k == 0 ? look.trim : _darken(look.trim, 0.2);
+      canvas.drawPath(fin, _fill);
+    }
+    _headBase(canvas, look.suit, look.suitShade, r);
+    canvas.save();
+    canvas.clipPath(_headShape(r));
+    // Golden faceplate that comes to a falcon-beak point.
+    final plate = Path()
+      ..moveTo(-r * 0.15, -r * 0.55)
+      ..quadraticBezierTo(r * 0.7, -r * 0.7, r * 1.2, -r * 0.1)
+      ..lineTo(r * 1.0, r * 0.5)
+      ..quadraticBezierTo(r * 0.6, r * 1.2, r * 0.1, r * 1.1)
+      ..quadraticBezierTo(-r * 0.2, r * 0.4, -r * 0.15, -r * 0.55)
+      ..close();
+    _fill.color = outline;
+    canvas.drawPath(plate.shift(const Offset(-3, 0)), _fill);
+    _fill.color = look.trim;
+    canvas.drawPath(plate, _fill);
+    _stroke
+      ..color = _withAlpha(outline, 0.4)
+      ..strokeWidth = 2.5;
+    canvas.drawLine(
+      Offset(r * 0.25, r * 0.55),
+      Offset(r * 0.85, r * 0.55),
+      _stroke,
+    );
+    canvas.restore();
+    _eyes(
+      canvas,
+      look,
+      mood,
+      front: Offset(r * 0.55, -r * 0.08),
+      back: Offset(r * 0.02, -r * 0.08),
+      frontRadius: r * 0.22,
+      backRadius: r * 0.18,
+      round: false,
+      lineColor: outline,
+    );
+  }
+
+  /// A friendly mouth that changes with the mood.
+  static void _smile(
+    Canvas canvas,
+    Offset c,
+    double w,
+    EyeMood mood, {
+    bool teeth = false,
+  }) {
+    _stroke
+      ..color = outline
+      ..strokeWidth = 3.5;
+    switch (mood) {
+      case EyeMood.hurt:
+        _fill.color = outline;
+        canvas.drawOval(
+          Rect.fromCenter(center: c, width: w * 0.8, height: w * 0.9),
+          _fill,
+        );
+      case EyeMood.dizzy:
+        final p = Path()..moveTo(c.dx - w, c.dy);
+        for (var i = 1; i <= 4; i++) {
+          p.lineTo(c.dx - w + i * w / 2, c.dy + (i.isOdd ? -3 : 3));
+        }
+        canvas.drawPath(p, _stroke);
+      case EyeMood.happy:
+      case EyeMood.focused:
+        final mouth = Path()
+          ..moveTo(c.dx - w, c.dy - w * 0.25)
+          ..quadraticBezierTo(c.dx, c.dy + w * 1.1, c.dx + w, c.dy - w * 0.25)
+          ..close();
+        _fill.color = outline;
+        canvas.drawPath(mouth, _fill);
+        if (teeth || mood == EyeMood.focused) {
+          _fill.color = const Color(0xFFFFFFFF);
+          canvas.drawRect(
+            Rect.fromLTRB(
+              c.dx - w * 0.75,
+              c.dy - w * 0.15,
+              c.dx + w * 0.75,
+              c.dy + w * 0.12,
+            ),
+            _fill,
+          );
+        }
+      case EyeMood.normal:
+        canvas.drawArc(
+          Rect.fromCenter(center: c, width: w * 2, height: w * 1.2),
+          0.2,
+          math.pi - 0.4,
+          false,
+          _stroke,
+        );
+    }
+  }
+
   static void _eyes(
     Canvas canvas,
     HeroLook look,
@@ -777,13 +1145,16 @@ abstract final class HeroRenderer {
     required double frontRadius,
     required double backRadius,
     required bool round,
+    Color? lineColor,
+    bool thickBrows = false,
   }) {
+    final line = lineColor ?? look.eyes;
     for (final (center, radius) in [(back, backRadius), (front, frontRadius)]) {
       switch (mood) {
         case EyeMood.hurt:
           // Squeezed-shut cartoon eyes: > <
           _stroke
-            ..color = look.eyes
+            ..color = line
             ..strokeWidth = 4;
           final w = radius * 0.8;
           final path = Path()
@@ -793,7 +1164,7 @@ abstract final class HeroRenderer {
           canvas.drawPath(path, _stroke);
         case EyeMood.dizzy:
           _stroke
-            ..color = look.eyes
+            ..color = line
             ..strokeWidth = 3;
           final spiral = Path();
           for (var i = 0; i <= 24; i++) {
@@ -805,7 +1176,7 @@ abstract final class HeroRenderer {
           canvas.drawPath(spiral, _stroke);
         case EyeMood.happy:
           _stroke
-            ..color = look.eyes
+            ..color = line
             ..strokeWidth = 4.5;
           canvas.drawArc(
             Rect.fromCircle(
@@ -850,7 +1221,7 @@ abstract final class HeroRenderer {
           // Brow line that angles down when focused.
           _stroke
             ..color = outline
-            ..strokeWidth = 4.5;
+            ..strokeWidth = thickBrows ? 7 : 4.5;
           final tilt = focused ? radius * 0.45 : 0.0;
           canvas.drawLine(
             center + Offset(-radius, -radius * 1.2 - tilt * 0.3),
@@ -867,7 +1238,7 @@ abstract final class HeroRenderer {
 
   static void _koStars(Canvas canvas, double t) {
     // Head position when lying on the back (see the lie rotation above).
-    const center = Offset(-250, -60);
+    const center = Offset(-205, -80);
     for (var i = 0; i < 3; i++) {
       final a = t * 2.2 + i * math.pi * 2 / 3;
       final p = center + Offset(math.cos(a) * 34, math.sin(a) * 10 - 20);
@@ -959,7 +1330,7 @@ class _Skeleton {
 
     final up = Offset(math.sin(p.lean), -math.cos(p.lean));
     final neck = pelvis + up * HeroRenderer.torsoLength;
-    final head = neck + up * (HeroRenderer.headRadius + 8) + const Offset(3, 0);
+    final head = neck + up * (HeroRenderer.headRadius + 4) + const Offset(3, 0);
 
     final fShoulder = neck + const Offset(5, 12);
     final bShoulder = neck + const Offset(-5, 10);

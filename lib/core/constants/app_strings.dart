@@ -34,12 +34,20 @@ abstract final class AppStrings {
   static const String kick = 'Kick';
   static const String block = 'Block';
   static const String jump = 'Jump';
+  static const String power = 'Power';
+  static const String powerReady = 'POWER READY!';
+  static const String chooseHero = 'Choose Your Hero';
+  static const String chooseOpponent = 'Choose Who to Fight';
+  static const String next = 'Next';
+  static const String random = 'Surprise Me';
+  static const String superpower = 'Superpower';
 
   static const List<String> howToPlaySteps = [
     'Hold the arrow buttons on the left to walk.',
     'Tap the up button to jump.',
     'Tap Punch for a quick hit, Kick for a strong hit.',
     'Hold Block to guard against attacks.',
+    'When the power bar glows gold, tap the big star for your superpower!',
     'Empty your opponent\'s health bar to win!',
   ];
 }

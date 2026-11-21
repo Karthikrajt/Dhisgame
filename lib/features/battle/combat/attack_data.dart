@@ -1,4 +1,4 @@
-enum AttackType { punch, kick }
+enum AttackType { punch, kick, special }
 
 /// Frame data for a single attack, expressed in seconds and world units.
 class AttackData {
@@ -75,8 +75,8 @@ class AttackData {
     recovery: 0.16,
     damage: 6,
     reach: 82,
-    hitboxBottom: 150,
-    hitboxTop: 215,
+    hitboxBottom: 115,
+    hitboxTop: 195,
     knockback: 220,
     hitStun: 0.28,
     cooldown: 0.06,
@@ -89,8 +89,8 @@ class AttackData {
     recovery: 0.24,
     damage: 9,
     reach: 106,
-    hitboxBottom: 70,
-    hitboxTop: 145,
+    hitboxBottom: 45,
+    hitboxTop: 125,
     knockback: 360,
     hitStun: 0.36,
     cooldown: 0.10,

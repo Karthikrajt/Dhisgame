@@ -9,7 +9,8 @@ below are needed to reach the final art and sound targets.
 | Item | Current implementation | Target |
 | --- | --- | --- |
 | Spider Shadow | Vector skeleton renderer (`hero_renderer.dart`) | Sprite sheets per action (idle 4-6, walk 6-8, run 6-8, jump 4-6, punch 4-6, kick 4-6, block 3-4, special 6-10, victory 6-8, hit 3-4 frames) |
-| Dark Knight | Same renderer, crest helm and scalloped cape | Same sprite sheet set |
+| Dark Knight, Solar Man, Thunder Giant, Iron Falcon | Same renderer with their own helmets, emblems, capes and wings | Same sprite sheet set |
+| Superpower effects (web, moon dash, sun beam, thunder wave, plasma) | Procedural (`power_effects.dart`) | Effect sprite sheets |
 | Neon City Rooftop | Procedural skyline, signs, props, particles | Painted parallax layers (sky, far city, mid city, rooftop, foreground) |
 | Hit, block and KO effects | Procedural bursts, ripples and smoke | Effect sprite sheets |
 | Portraits | Procedural head render | Painted portrait per hero |

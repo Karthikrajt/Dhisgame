@@ -7,6 +7,7 @@ enum AiDifficulty {
     blockChance: 0.15,
     jumpChance: 0.04,
     attackPause: 0.9,
+    specialChance: 0.35,
   ),
   normal(
     label: 'Normal',
@@ -15,6 +16,7 @@ enum AiDifficulty {
     blockChance: 0.35,
     jumpChance: 0.07,
     attackPause: 0.45,
+    specialChance: 0.6,
   ),
   hard(
     label: 'Hard',
@@ -23,6 +25,7 @@ enum AiDifficulty {
     blockChance: 0.55,
     jumpChance: 0.09,
     attackPause: 0.2,
+    specialChance: 0.85,
   );
 
   const AiDifficulty({
@@ -32,6 +35,7 @@ enum AiDifficulty {
     required this.blockChance,
     required this.jumpChance,
     required this.attackPause,
+    required this.specialChance,
   });
 
   final String label;
@@ -50,4 +54,7 @@ enum AiDifficulty {
 
   /// Minimum rest between AI attacks.
   final double attackPause;
+
+  /// Chance to use the superpower at a decision point when it is ready.
+  final double specialChance;
 }

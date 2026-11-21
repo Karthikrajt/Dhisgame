@@ -22,6 +22,7 @@ void main() {
       (FighterState.falling, 0.3, null),
       (FighterState.punching, 0.12, AttackData.punch),
       (FighterState.kicking, 0.2, AttackData.kick),
+      (FighterState.special, 0.45, null),
       (FighterState.blocking, 0.3, null),
       (FighterState.hit, 0.2, null),
       (FighterState.knockout, 1.0, null),
@@ -39,7 +40,11 @@ void main() {
         HeroRenderer.paint(
           canvas,
           HeroRoster.all[r].look,
-          HeroPose.forState(st, stateTime: t, animTime: 1.3, attack: atk),
+          HeroPose.forState(st,
+              stateTime: t,
+              animTime: 1.3,
+              attack: atk,
+              specialKind: HeroRoster.all[r].special.kind),
           time: 1.3,
         );
         canvas.restore();

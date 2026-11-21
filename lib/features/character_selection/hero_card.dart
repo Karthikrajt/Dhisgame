@@ -5,7 +5,7 @@ import '../../shared/widgets/hero_preview.dart';
 import '../battle/characters/hero_definition.dart';
 import '../battle/combat/fighter_state.dart';
 
-/// A selectable hero card with a live animated preview.
+/// A big, tappable hero card with a live animated preview.
 class HeroCard extends StatelessWidget {
   const HeroCard({
     super.key,
@@ -15,6 +15,7 @@ class HeroCard extends StatelessWidget {
     required this.accent,
     this.disabled = false,
     this.facing = 1,
+    this.badge,
   });
 
   final HeroDefinition hero;
@@ -23,6 +24,9 @@ class HeroCard extends StatelessWidget {
   final VoidCallback onTap;
   final Color accent;
   final int facing;
+
+  /// Optional small label in the corner, e.g. "YOU".
+  final String? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -35,74 +39,117 @@ class HeroCard extends StatelessWidget {
         onTap: disabled ? null : onTap,
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 200),
-          opacity: disabled ? 0.4 : 1,
-          child: AnimatedContainer(
+          opacity: disabled ? 0.45 : 1,
+          child: AnimatedScale(
             duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: selected ? AppColors.cream : const Color(0xCCFFF4E0),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: selected ? accent : AppColors.ink,
-                width: selected ? 5 : 3,
+            scale: selected ? 1.0 : 0.94,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: selected ? AppColors.cream : const Color(0xCCFFF4E0),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: selected ? accent : AppColors.ink,
+                  width: selected ? 5 : 3,
+                ),
+                boxShadow: [
+                  if (selected)
+                    BoxShadow(
+                      color: accent.withValues(alpha: 0.7),
+                      blurRadius: 16,
+                    ),
+                ],
               ),
-              boxShadow: [
-                if (selected)
-                  BoxShadow(
-                    color: accent.withValues(alpha: 0.6),
-                    blurRadius: 14,
-                  ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          hero.look.suit.withValues(alpha: 0.25),
-                          hero.look.trim.withValues(alpha: 0.35),
-                        ],
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                hero.look.suit.withValues(alpha: 0.2),
+                                hero.special.color.withValues(alpha: 0.45),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: HeroPreview(
+                            hero: hero,
+                            facing: facing,
+                            state: selected
+                                ? FighterState.victory
+                                : FighterState.idle,
+                            animate: !disabled,
+                          ),
+                        ),
                       ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: HeroPreview(
-                      hero: hero,
-                      facing: facing,
-                      state: selected
-                          ? FighterState.victory
-                          : FighterState.idle,
-                      animate: !disabled,
-                    ),
+                      const SizedBox(height: 4),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          hero.name.toUpperCase(),
+                          style: const TextStyle(
+                            color: AppColors.ink,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.auto_awesome_rounded,
+                              size: 14,
+                              color: Color(0xFFE0A800),
+                            ),
+                            const SizedBox(width: 3),
+                            Text(
+                              hero.special.name,
+                              style: const TextStyle(
+                                color: Color(0xFF3B3D5C),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 4),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    hero.name.toUpperCase(),
-                    style: const TextStyle(
-                      color: AppColors.ink,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 16,
+                  if (badge != null)
+                    Positioned(
+                      top: 4,
+                      left: 4,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.playerAccent,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: AppColors.ink, width: 2),
+                        ),
+                        child: Text(
+                          badge!,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.ink,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Text(
-                  hero.abilityDescription,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFF3B3D5C),
-                    fontSize: 11,
-                    height: 1.15,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

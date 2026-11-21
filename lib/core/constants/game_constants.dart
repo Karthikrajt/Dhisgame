@@ -35,6 +35,13 @@ abstract final class GameConstants {
   /// Fraction of damage that still goes through a block.
   static const double blockDamageFactor = 0.15;
 
+  static const double maxEnergy = 100;
+
+  /// Energy gained per second just by playing.
+  static const double energyPerSecond = 7;
+  static const double energyPerHitDealt = 8;
+  static const double energyPerHitTaken = 5;
+
   /// Length of the "Ready / Fight" intro before control is given.
   static const double introSeconds = 1.8;
 

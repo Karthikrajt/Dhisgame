@@ -4,6 +4,8 @@ import '../../../core/constants/game_constants.dart';
 import 'attack_data.dart';
 import 'fighter.dart';
 import 'fighter_state.dart';
+import 'projectile.dart';
+import '../characters/hero_definition.dart';
 
 /// Outcome of one attack connecting.
 class HitEvent {
@@ -16,6 +18,8 @@ class HitEvent {
     required this.point,
     required this.knockout,
   });
+
+  bool get isSpecial => type == AttackType.special;
 
   final Fighter attacker;
   final Fighter defender;
@@ -34,16 +38,54 @@ abstract final class CombatResolver {
     final hitbox = attacker.activeHitbox;
     final attack = attacker.currentAttack;
     if (hitbox == null || attack == null) return null;
-    if (defender.state.isFinal || defender.invulnerable > 0) return null;
+    if (!_canBeHit(defender)) return null;
 
     final hurt = defender.hurtbox;
     if (!hitbox.overlaps(hurt)) return null;
 
     attacker.registerHit();
     final direction = defender.x >= attacker.x ? 1 : -1;
-    final overlap = hitbox.intersect(hurt);
-    final point = overlap.center;
+    return _apply(
+      attacker,
+      defender,
+      attack,
+      direction,
+      hitbox.intersect(hurt).center,
+    );
+  }
 
+  /// Checks a flying superpower against [defender].
+  static HitEvent? resolveProjectile(Projectile p, Fighter defender) {
+    if (p.spent || p.done || !_canBeHit(defender)) return null;
+    final hurt = defender.hurtbox;
+    final box = p.hitbox;
+    if (!box.overlaps(hurt)) return null;
+    p.spent = true;
+    final hit = _apply(
+      p.owner,
+      defender,
+      p.power.attackData,
+      p.direction,
+      box.intersect(hurt).center,
+    );
+    if (!hit.blocked &&
+        p.kind == SpecialKind.projectile &&
+        p.power.hitStun > 0.8) {
+      defender.webbed = p.power.hitStun;
+    }
+    return hit;
+  }
+
+  static bool _canBeHit(Fighter f) =>
+      !f.state.isFinal && f.invulnerable <= 0 && !f.superArmor;
+
+  static HitEvent _apply(
+    Fighter attacker,
+    Fighter defender,
+    AttackData attack,
+    int direction,
+    Offset point,
+  ) {
     // A block only works when the defender faces the attacker.
     final blocked =
         defender.state == FighterState.blocking &&
@@ -52,6 +94,8 @@ abstract final class CombatResolver {
     final damage = blocked
         ? defender.receiveBlockedHit(attack, direction)
         : defender.receiveHit(attack, direction);
+    attacker.addEnergy(GameConstants.energyPerHitDealt);
+    defender.addEnergy(GameConstants.energyPerHitTaken);
 
     return HitEvent(
       attacker: attacker,

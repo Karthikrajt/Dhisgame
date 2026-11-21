@@ -1,7 +1,7 @@
 import '../combat/fighter_input.dart';
 
 /// Buttons on the touch control pad (and their keyboard equivalents).
-enum ControlButton { left, right, jump, punch, kick, block }
+enum ControlButton { left, right, jump, punch, kick, block, special }
 
 /// Collects pressed buttons from the touch overlay and keyboard, and turns
 /// them into a [FighterInput] each frame.
@@ -47,6 +47,7 @@ class ControlInput {
       punch: _active(ControlButton.punch),
       kick: _active(ControlButton.kick),
       block: _active(ControlButton.block),
+      special: _active(ControlButton.special),
     );
     _queued.updateAll((_, t) => t - dt);
     _queued.removeWhere((_, t) => t <= 0);

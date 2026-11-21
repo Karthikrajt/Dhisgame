@@ -123,7 +123,11 @@ class _BattleScreenState extends ConsumerState<BattleScreen>
             SafeArea(
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: TouchControls(key: ObjectKey(_game), input: _input),
+                child: TouchControls(
+                  key: ObjectKey(_game),
+                  input: _input,
+                  hud: _game.hud,
+                ),
               ),
             ),
             SafeArea(

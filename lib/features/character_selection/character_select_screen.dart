@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -12,125 +14,197 @@ import '../battle/ai/ai_difficulty.dart';
 import '../battle/characters/hero_roster.dart';
 import 'hero_card.dart';
 
-/// Pick your hero, pick the computer's hero, choose difficulty, fight.
-class CharacterSelectScreen extends ConsumerWidget {
+/// Two simple steps: tap your hero, then tap who to fight.
+class CharacterSelectScreen extends ConsumerStatefulWidget {
   const CharacterSelectScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CharacterSelectScreen> createState() =>
+      _CharacterSelectScreenState();
+}
+
+class _CharacterSelectScreenState extends ConsumerState<CharacterSelectScreen> {
+  bool _pickingOpponent = false;
+
+  void _back() {
+    if (_pickingOpponent) {
+      setState(() => _pickingOpponent = false);
+    } else {
+      Navigator.of(context).maybePop();
+    }
+  }
+
+  void _surprise() {
+    final setup = ref.read(battleSetupProvider);
+    final others = HeroRoster.all
+        .where((h) => h.id != setup.player.id)
+        .toList();
+    ref
+        .read(battleSetupProvider.notifier)
+        .selectOpponent(others[math.Random().nextInt(others.length)]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final setup = ref.watch(battleSetupProvider);
     final notifier = ref.read(battleSetupProvider.notifier);
+    final accent = _pickingOpponent
+        ? AppColors.opponentAccent
+        : AppColors.playerAccent;
 
-    return Scaffold(
-      body: MenuBackground(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  IconButton.filled(
-                    tooltip: 'Back',
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppColors.cream,
-                      foregroundColor: AppColors.ink,
-                    ),
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    icon: const Icon(Icons.arrow_back_rounded),
-                  ),
-                  const Expanded(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: ComicText(
-                        AppStrings.selectHero,
-                        size: 30,
-                        outline: 6,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 48),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+    return PopScope(
+      canPop: !_pickingOpponent,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _back();
+      },
+      child: Scaffold(
+        body: MenuBackground(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+            child: Column(
+              children: [
+                Row(
                   children: [
+                    IconButton.filled(
+                      tooltip: 'Back',
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.cream,
+                        foregroundColor: AppColors.ink,
+                      ),
+                      onPressed: _back,
+                      icon: const Icon(Icons.arrow_back_rounded),
+                    ),
                     Expanded(
-                      child: _Panel(
-                        title: AppStrings.you,
-                        accent: AppColors.playerAccent,
-                        children: [
-                          for (final hero in HeroRoster.all)
-                            HeroCard(
-                              key: ValueKey('player_${hero.id}'),
-                              hero: hero,
-                              selected: setup.player.id == hero.id,
-                              accent: AppColors.playerAccent,
-                              onTap: () => notifier.selectPlayer(hero),
-                            ),
-                        ],
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: ComicText(
+                          _pickingOpponent
+                              ? AppStrings.chooseOpponent
+                              : AppStrings.chooseHero,
+                          key: ValueKey(_pickingOpponent),
+                          size: 30,
+                          outline: 6,
+                          color: _pickingOpponent
+                              ? AppColors.opponentAccent
+                              : AppColors.gold,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Center(
-                      child: ComicText('VS', size: 34, color: AppColors.cream),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _Panel(
-                        title: AppStrings.cpu,
-                        accent: AppColors.opponentAccent,
-                        children: [
-                          for (final hero in HeroRoster.all)
-                            HeroCard(
-                              key: ValueKey('opponent_${hero.id}'),
-                              hero: hero,
-                              facing: -1,
-                              selected: setup.opponent.id == hero.id,
-                              disabled: setup.player.id == hero.id,
-                              accent: AppColors.opponentAccent,
-                              onTap: () => notifier.selectOpponent(hero),
-                            ),
-                        ],
-                      ),
-                    ),
+                    _StepDots(step: _pickingOpponent ? 1 : 0),
                   ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Text(
-                    '${AppStrings.difficulty}:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 16,
-                      color: AppColors.cream,
-                    ),
+                const SizedBox(height: 6),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final hero in HeroRoster.all) ...[
+                        if (hero != HeroRoster.all.first)
+                          const SizedBox(width: 8),
+                        Expanded(
+                          child: HeroCard(
+                            key: ValueKey(
+                              '${_pickingOpponent ? 'opponent' : 'player'}_${hero.id}',
+                            ),
+                            hero: hero,
+                            accent: accent,
+                            facing: _pickingOpponent ? -1 : 1,
+                            selected: _pickingOpponent
+                                ? setup.opponent.id == hero.id
+                                : setup.player.id == hero.id,
+                            disabled:
+                                _pickingOpponent && setup.player.id == hero.id,
+                            badge:
+                                _pickingOpponent && setup.player.id == hero.id
+                                ? AppStrings.you
+                                : null,
+                            onTap: () => _pickingOpponent
+                                ? notifier.selectOpponent(hero)
+                                : notifier.selectPlayer(hero),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  for (final d in AiDifficulty.values)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: ChoiceChip(
-                        label: Text(d.label),
-                        selected: setup.difficulty == d,
-                        onSelected: (_) => notifier.setDifficulty(d),
-                      ),
-                    ),
-                  const Spacer(),
-                  ArcadeButton(
-                    key: const ValueKey('start_battle'),
-                    label: AppStrings.startBattle,
-                    icon: Icons.sports_mma_rounded,
-                    fontSize: 20,
-                    onPressed: () =>
-                        Navigator.of(context).pushNamed(Routes.versus),
-                  ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 56,
+                  child: _pickingOpponent
+                      ? Row(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    for (final d in AiDifficulty.values)
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          right: 6,
+                                        ),
+                                        child: ChoiceChip(
+                                          label: Text(d.label),
+                                          selected: setup.difficulty == d,
+                                          onSelected: (_) =>
+                                              notifier.setDifficulty(d),
+                                        ),
+                                      ),
+                                    const SizedBox(width: 4),
+                                    ActionChip(
+                                      avatar: const Icon(
+                                        Icons.casino_rounded,
+                                        size: 18,
+                                      ),
+                                      label: const Text(AppStrings.random),
+                                      onPressed: _surprise,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ArcadeButton(
+                              key: const ValueKey('start_battle'),
+                              label: AppStrings.startBattle,
+                              icon: Icons.sports_mma_rounded,
+                              fontSize: 20,
+                              onPressed: () =>
+                                  Navigator.of(context)
+                                      .pushNamed(Routes.versus),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                '${AppStrings.superpower}: '
+                                '${setup.player.special.name}  ·  '
+                                '${setup.player.special.description}',
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.cream,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            ArcadeButton(
+                              key: const ValueKey('next_step'),
+                              label: AppStrings.next,
+                              icon: Icons.arrow_forward_rounded,
+                              fontSize: 20,
+                              onPressed: () =>
+                                  setState(() => _pickingOpponent = true),
+                            ),
+                          ],
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -138,49 +212,29 @@ class CharacterSelectScreen extends ConsumerWidget {
   }
 }
 
-class _Panel extends StatelessWidget {
-  const _Panel({
-    required this.title,
-    required this.accent,
-    required this.children,
-  });
-
-  final String title;
-  final Color accent;
-  final List<Widget> children;
+class _StepDots extends StatelessWidget {
+  const _StepDots({required this.step});
+  final int step;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
-      decoration: BoxDecoration(
-        color: const Color(0x3312142A),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: accent.withValues(alpha: 0.6), width: 2),
-      ),
-      child: Column(
+    return SizedBox(
+      width: 48,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: accent,
-              fontWeight: FontWeight.w900,
-              fontSize: 16,
-              letterSpacing: 2,
+          for (var i = 0; i < 2; i++)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              width: i == step ? 16 : 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: i == step ? AppColors.gold : AppColors.cream,
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: AppColors.ink, width: 2),
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < children.length; i++) ...[
-                  if (i > 0) const SizedBox(width: 8),
-                  Expanded(child: children[i]),
-                ],
-              ],
-            ),
-          ),
         ],
       ),
     );

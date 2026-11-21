@@ -37,6 +37,7 @@ class BattleHud extends StatelessWidget {
                 child: _FighterBar(
                   hero: player,
                   health: state.playerHealth,
+                  energy: state.playerEnergy,
                   accent: AppColors.playerAccent,
                   alignRight: false,
                 ),
@@ -48,6 +49,7 @@ class BattleHud extends StatelessWidget {
                 child: _FighterBar(
                   hero: opponent,
                   health: state.opponentHealth,
+                  energy: state.opponentEnergy,
                   accent: AppColors.opponentAccent,
                   alignRight: true,
                 ),
@@ -67,12 +69,14 @@ class _FighterBar extends StatelessWidget {
   const _FighterBar({
     required this.hero,
     required this.health,
+    required this.energy,
     required this.accent,
     required this.alignRight,
   });
 
   final HeroDefinition hero;
   final double health;
+  final double energy;
   final Color accent;
   final bool alignRight;
 
@@ -109,7 +113,19 @@ class _FighterBar extends StatelessWidget {
             : CrossAxisAlignment.start,
         children: [
           HealthBar(value: health, reversed: alignRight),
-          const SizedBox(height: 4),
+          const SizedBox(height: 3),
+          FractionallySizedBox(
+            widthFactor: 0.7,
+            alignment: alignRight
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: EnergyBar(
+              value: energy,
+              color: hero.special.color,
+              reversed: alignRight,
+            ),
+          ),
+          const SizedBox(height: 2),
           Text(
             hero.name.toUpperCase(),
             style: TextStyle(
@@ -183,6 +199,72 @@ class HealthBar extends StatelessWidget {
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Superpower meter. Fills up over time; turns gold with a soft steady glow
+/// when the POWER button is ready.
+class EnergyBar extends StatelessWidget {
+  const EnergyBar({
+    super.key,
+    required this.value,
+    required this.color,
+    this.reversed = false,
+  });
+
+  final double value;
+  final Color color;
+  final bool reversed;
+
+  @override
+  Widget build(BuildContext context) {
+    final full = value >= 1;
+    final fill = full ? AppColors.gold : Color.lerp(color, Colors.white, 0.1)!;
+    return Container(
+      height: 14,
+      decoration: BoxDecoration(
+        color: AppColors.ink,
+        borderRadius: BorderRadius.circular(7),
+        border: Border.all(color: AppColors.ink, width: 2.5),
+        boxShadow: full
+            ? [
+                BoxShadow(
+                  color: AppColors.gold.withValues(alpha: 0.7),
+                  blurRadius: 10,
+                ),
+              ]
+            : null,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(5),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            const ColoredBox(color: Color(0xFF2E2A4A)),
+            FractionallySizedBox(
+              alignment: reversed
+                  ? Alignment.centerRight
+                  : Alignment.centerLeft,
+              widthFactor: value.clamp(0.0, 1.0),
+              child: ColoredBox(color: fill),
+            ),
+            if (full)
+              const Center(
+                child: Text(
+                  AppStrings.powerReady,
+                  style: TextStyle(
+                    fontSize: 8,
+                    height: 1,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.ink,
+                    letterSpacing: 1,
+                  ),
+                ),
+              ),
           ],
         ),
       ),

@@ -83,8 +83,15 @@ void main() {
 
     await tester.tap(find.text(AppStrings.startGame));
     await pumpFor(tester, 0.6);
-    await shot(tester, 'select');
 
+    await tester.tap(find.byKey(const ValueKey('player_solar_man')));
+    await pumpFor(tester, 0.4);
+    await shot(tester, 'select');
+    await tester.tap(find.byKey(const ValueKey('next_step')));
+    await pumpFor(tester, 0.3);
+    await tester.tap(find.byKey(const ValueKey('opponent_thunder_giant')));
+    await pumpFor(tester, 0.4);
+    await shot(tester, 'select_opponent');
     await tester.tap(find.byKey(const ValueKey('start_battle')));
     await pumpFor(tester, 1.2);
     await shot(tester, 'versus');

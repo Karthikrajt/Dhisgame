@@ -7,6 +7,7 @@ class FighterInput {
     this.punch = false,
     this.kick = false,
     this.block = false,
+    this.special = false,
   });
 
   final bool left;
@@ -16,6 +17,9 @@ class FighterInput {
   final bool kick;
   final bool block;
 
+  /// Fire the hero's superpower (only works with a full energy meter).
+  final bool special;
+
   static const FighterInput none = FighterInput();
 
   /// -1 for left, 1 for right, 0 when both or neither are held.
@@ -23,5 +27,6 @@ class FighterInput {
 
   @override
   String toString() =>
-      'FighterInput(l:$left r:$right j:$jump p:$punch k:$kick b:$block)';
+      'FighterInput(l:$left r:$right j:$jump p:$punch k:$kick b:$block '
+      's:$special)';
 }

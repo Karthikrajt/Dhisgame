@@ -30,6 +30,12 @@ class Fighter {
   int facing;
 
   double health = GameConstants.maxHealth;
+  double energy = 0;
+
+  /// Seconds left stuck in a web (purely visual, matches the hit stun).
+  double webbed = 0;
+  bool _specialReleased = false;
+  bool _projectileRequested = false;
   double invulnerable = 0;
   double attackCooldown = 0;
   double hitStun = 0;
@@ -52,6 +58,25 @@ class Fighter {
 
   bool get onGround => y >= GameConstants.groundY - 0.01;
   bool get isKnockedOut => state == FighterState.knockout;
+  bool get energyFull => energy >= GameConstants.maxEnergy;
+  double get energyFraction => (energy / GameConstants.maxEnergy).clamp(0, 1);
+
+  /// While charging a superpower the hero cannot be interrupted, so the big
+  /// move always comes out. This makes powers feel reliable for kids.
+  bool get superArmor =>
+      state == FighterState.special && stateTime < SpecialPower.chargeTime;
+
+  void addEnergy(double amount) {
+    energy = math.min(GameConstants.maxEnergy, energy + amount);
+  }
+
+  /// Returns true once, when a superpower that fires something is released.
+  bool takeProjectileRequest() {
+    final r = _projectileRequested;
+    _projectileRequested = false;
+    return r;
+  }
+
   double get healthFraction => (health / GameConstants.maxHealth).clamp(0, 1);
 
   /// 0..1 progress of the current attack, or 0 when not attacking.
@@ -73,6 +98,10 @@ class Fighter {
   Rect? get activeHitbox {
     final attack = _attack;
     if (attack == null || _attackHasHit || !state.isAttacking) return null;
+    if (state == FighterState.special &&
+        hero.special.kind != SpecialKind.dash) {
+      return null;
+    }
     if (!attack.isActiveAt(stateTime)) return null;
     final near = x + facing * GameConstants.fighterHalfWidth * 0.5;
     final far = x + facing * (GameConstants.fighterHalfWidth + attack.reach);
@@ -96,6 +125,8 @@ class Fighter {
     invulnerable = math.max(0, invulnerable - dt);
     attackCooldown = math.max(0, attackCooldown - dt);
     blockFlash = math.max(0, blockFlash - dt);
+    webbed = math.max(0, webbed - dt);
+    if (!state.isFinal) addEnergy(GameConstants.energyPerSecond * dt);
 
     switch (state) {
       case FighterState.knockout:
@@ -107,6 +138,8 @@ class Fighter {
         if (hitStun <= 0) {
           _sm.transition(onGround ? FighterState.idle : FighterState.falling);
         }
+      case FighterState.special:
+        _updateSpecial(dt);
       case FighterState.punching:
       case FighterState.kicking:
         if (onGround) _applyFriction(dt);
@@ -136,6 +169,11 @@ class Fighter {
     }
     if (state == FighterState.blocking) {
       _sm.transition(FighterState.idle);
+    }
+
+    if (input.special && energyFull && onGround) {
+      _startSpecial();
+      return;
     }
 
     if (canAttack && (input.punch || input.kick)) {
@@ -170,6 +208,39 @@ class Fighter {
     _attackHasHit = false;
     _attackSerial++;
     if (onGround) vx = 0;
+  }
+
+  void _startSpecial() {
+    if (!_sm.transition(FighterState.special)) return;
+    energy = 0;
+    _attack = hero.special.attackData;
+    _attackHasHit = false;
+    _specialReleased = false;
+    _attackSerial++;
+    vx = 0;
+  }
+
+  void _updateSpecial(double dt) {
+    final power = hero.special;
+    final t = stateTime;
+    if (!_specialReleased && t >= SpecialPower.chargeTime) {
+      _specialReleased = true;
+      if (power.kind != SpecialKind.dash) _projectileRequested = true;
+    }
+    final dashing =
+        power.kind == SpecialKind.dash &&
+        t >= SpecialPower.chargeTime &&
+        t < SpecialPower.chargeTime + SpecialPower.dashTime;
+    if (dashing) {
+      vx = facing * power.speed;
+    } else {
+      _applyFriction(dt * 2);
+    }
+    if (t >= power.totalTime) {
+      attackCooldown = 0.15;
+      _attack = null;
+      _sm.transition(FighterState.idle);
+    }
   }
 
   void _applyFriction(double dt) {
