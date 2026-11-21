@@ -1,0 +1,3 @@
+tags:
+  preview:
+    skip: "Screenshot generator. Run explicitly with: flutter test --tags preview --run-skipped"
