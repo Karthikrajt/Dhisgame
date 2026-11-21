@@ -65,7 +65,9 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
     );
     _fitCamera(size);
 
-    world.add(NeonRooftopArena(focusX: () => (match.player.x + match.opponent.x) / 2));
+    world.add(
+      NeonRooftopArena(focusX: () => (match.player.x + match.opponent.x) / 2),
+    );
     world.add(FighterComponent(match.opponent));
     world.add(FighterComponent(match.player));
     // The HUD is first published from update(), never during the widget
@@ -105,11 +107,13 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
       _koEffectsShown = true;
       for (final f in [match.player, match.opponent]) {
         if (f.isKnockedOut) {
-          world.add(SmokePuffs(
-            at: Vector2(f.x, GameConstants.groundY - 10),
-            count: 8,
-            spread: 90,
-          ));
+          world.add(
+            SmokePuffs(
+              at: Vector2(f.x, GameConstants.groundY - 10),
+              count: 8,
+              spread: 90,
+            ),
+          );
         }
       }
     }
@@ -160,7 +164,10 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
   };
 
   @override
-  KeyEventResult onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+  KeyEventResult onKeyEvent(
+    KeyEvent event,
+    Set<LogicalKeyboardKey> keysPressed,
+  ) {
     final button = keyMap[event.logicalKey];
     if (button == null) return KeyEventResult.ignored;
     if (event is KeyDownEvent) {

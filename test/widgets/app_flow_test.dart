@@ -44,7 +44,10 @@ void main() {
     await pumpFor(tester, const Duration(milliseconds: 400));
     expect(find.byType(VersusScreen), findsOneWidget);
 
-    await pumpFor(tester, VersusScreen.showFor + const Duration(milliseconds: 500));
+    await pumpFor(
+      tester,
+      VersusScreen.showFor + const Duration(milliseconds: 500),
+    );
     expect(find.byType(BattleScreen), findsOneWidget);
     expect(find.text(AppStrings.punch.toUpperCase()), findsOneWidget);
     expect(find.text(AppStrings.kick.toUpperCase()), findsOneWidget);
@@ -58,15 +61,18 @@ void main() {
     expect(find.text(AppStrings.resume), findsNothing);
   });
 
-  testWidgets('choosing the opponent\'s hero as your own swaps the opponent',
-      (tester) async {
+  testWidgets('choosing the opponent\'s hero as your own swaps the opponent', (
+    tester,
+  ) async {
     await setLandscape(tester);
     final container = ProviderContainer();
     addTearDown(container.dispose);
-    await tester.pumpWidget(UncontrolledProviderScope(
-      container: container,
-      child: const MaterialApp(home: CharacterSelectScreen()),
-    ));
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: CharacterSelectScreen()),
+      ),
+    );
     await tester.pump();
 
     await tester.tap(find.byKey(const ValueKey('player_dark_knight')));
@@ -77,12 +83,15 @@ void main() {
   });
 
   for (final outcome in MatchOutcome.values) {
-    testWidgets('result screen for $outcome has working buttons',
-        (tester) async {
+    testWidgets('result screen for $outcome has working buttons', (
+      tester,
+    ) async {
       await setLandscape(tester);
-      await tester.pumpWidget(ProviderScope(
-        child: MaterialApp(home: ResultScreen(outcome: outcome)),
-      ));
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(home: ResultScreen(outcome: outcome)),
+        ),
+      );
       await tester.pump();
       final expected = switch (outcome) {
         MatchOutcome.playerWins => AppStrings.victory,

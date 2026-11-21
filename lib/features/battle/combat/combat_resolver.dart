@@ -45,7 +45,8 @@ abstract final class CombatResolver {
     final point = overlap.center;
 
     // A block only works when the defender faces the attacker.
-    final blocked = defender.state == FighterState.blocking &&
+    final blocked =
+        defender.state == FighterState.blocking &&
         defender.facing == -direction;
 
     final damage = blocked

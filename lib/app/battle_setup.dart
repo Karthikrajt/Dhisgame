@@ -32,9 +32,9 @@ class BattleSetup {
 class BattleSetupNotifier extends Notifier<BattleSetup> {
   @override
   BattleSetup build() => const BattleSetup(
-        player: HeroRoster.spiderShadow,
-        opponent: HeroRoster.darkKnight,
-      );
+    player: HeroRoster.spiderShadow,
+    opponent: HeroRoster.darkKnight,
+  );
 
   /// Picks the player's hero. If it clashes with the opponent, the opponent
   /// switches to another hero so there is always a fair match-up.
@@ -56,5 +56,6 @@ class BattleSetupNotifier extends Notifier<BattleSetup> {
   }
 }
 
-final battleSetupProvider =
-    NotifierProvider<BattleSetupNotifier, BattleSetup>(BattleSetupNotifier.new);
+final battleSetupProvider = NotifierProvider<BattleSetupNotifier, BattleSetup>(
+  BattleSetupNotifier.new,
+);

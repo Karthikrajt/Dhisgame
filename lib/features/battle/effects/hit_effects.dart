@@ -7,7 +7,7 @@ import 'package:flame/components.dart';
 /// of a second: bright enough to read, but never a full-screen flash.
 class HitBurst extends PositionComponent {
   HitBurst({required Vector2 at, this.big = false})
-      : super(position: at, priority: 20);
+    : super(position: at, priority: 20);
 
   final bool big;
   double _t = 0;
@@ -94,15 +94,15 @@ class BlockRipple extends PositionComponent {
 /// Soft grey cartoon smoke puffs for knockouts and landings.
 class SmokePuffs extends PositionComponent {
   SmokePuffs({required Vector2 at, int count = 6, this.spread = 60})
-      : _puffs = List.generate(count, (i) {
-          final r = math.Random(i * 31 + at.x.toInt());
-          return _Puff(
-            dx: (r.nextDouble() - 0.5) * 2,
-            dy: -r.nextDouble(),
-            size: 10 + r.nextDouble() * 12,
-          );
-        }),
-        super(position: at, priority: 19);
+    : _puffs = List.generate(count, (i) {
+        final r = math.Random(i * 31 + at.x.toInt());
+        return _Puff(
+          dx: (r.nextDouble() - 0.5) * 2,
+          dy: -r.nextDouble(),
+          size: 10 + r.nextDouble() * 12,
+        );
+      }),
+      super(position: at, priority: 19);
 
   final double spread;
   final List<_Puff> _puffs;

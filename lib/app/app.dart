@@ -37,8 +37,8 @@ class SuperheroShowdownApp extends StatelessWidget {
       Routes.versus => const VersusScreen(),
       Routes.battle => const BattleScreen(),
       Routes.result => ResultScreen(
-          outcome: settings.arguments as MatchOutcome? ?? MatchOutcome.draw,
-        ),
+        outcome: settings.arguments as MatchOutcome? ?? MatchOutcome.draw,
+      ),
       _ => const MainMenuScreen(),
     };
     return PageRouteBuilder<void>(

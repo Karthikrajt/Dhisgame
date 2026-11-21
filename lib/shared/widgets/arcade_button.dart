@@ -51,10 +51,7 @@ class _ArcadeButtonState extends State<ArcadeButton> {
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: AppColors.ink, width: 4),
             boxShadow: [
-              BoxShadow(
-                color: AppColors.ink,
-                offset: Offset(0, _down ? 2 : 6),
-              ),
+              BoxShadow(color: AppColors.ink, offset: Offset(0, _down ? 2 : 6)),
             ],
           ),
           child: Row(
@@ -62,7 +59,11 @@ class _ArcadeButtonState extends State<ArcadeButton> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (widget.icon != null) ...[
-                Icon(widget.icon, color: AppColors.ink, size: widget.fontSize + 4),
+                Icon(
+                  widget.icon,
+                  color: AppColors.ink,
+                  size: widget.fontSize + 4,
+                ),
                 const SizedBox(width: 10),
               ],
               Flexible(

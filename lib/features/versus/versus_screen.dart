@@ -66,8 +66,10 @@ class _VersusScreenState extends ConsumerState<VersusScreen>
             children: [
               Expanded(
                 child: SlideTransition(
-                  position: Tween(begin: const Offset(-1, 0), end: Offset.zero)
-                      .animate(slide),
+                  position: Tween(
+                    begin: const Offset(-1, 0),
+                    end: Offset.zero,
+                  ).animate(slide),
                   child: _Side(
                     name: setup.player.name,
                     color: AppColors.playerAccent,
@@ -81,8 +83,10 @@ class _VersusScreenState extends ConsumerState<VersusScreen>
               ),
               Expanded(
                 child: SlideTransition(
-                  position: Tween(begin: const Offset(1, 0), end: Offset.zero)
-                      .animate(slide),
+                  position: Tween(
+                    begin: const Offset(1, 0),
+                    end: Offset.zero,
+                  ).animate(slide),
                   child: _Side(
                     name: setup.opponent.name,
                     color: AppColors.opponentAccent,
@@ -114,7 +118,12 @@ class _Side extends StatelessWidget {
           Expanded(child: child),
           FittedBox(
             fit: BoxFit.scaleDown,
-            child: ComicText(name.toUpperCase(), size: 34, color: color, outline: 6),
+            child: ComicText(
+              name.toUpperCase(),
+              size: 34,
+              color: color,
+              outline: 6,
+            ),
           ),
         ],
       ),

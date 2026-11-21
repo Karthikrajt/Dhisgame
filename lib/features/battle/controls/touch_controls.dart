@@ -175,7 +175,11 @@ class _PadButtonState extends State<_PadButton> {
               ],
             ),
             child: widget.icon != null
-                ? Icon(widget.icon, size: widget.size * 0.5, color: AppColors.ink)
+                ? Icon(
+                    widget.icon,
+                    size: widget.size * 0.5,
+                    color: AppColors.ink,
+                  )
                 : Padding(
                     padding: const EdgeInsets.all(6),
                     child: FittedBox(

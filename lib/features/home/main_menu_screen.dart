@@ -52,14 +52,9 @@ class MainMenuScreen extends StatelessWidget {
                 flex: 5,
                 child: Row(
                   children: [
+                    Expanded(child: HeroPreview(hero: HeroRoster.all.first)),
                     Expanded(
-                      child: HeroPreview(hero: HeroRoster.all.first),
-                    ),
-                    Expanded(
-                      child: HeroPreview(
-                        hero: HeroRoster.all.last,
-                        facing: -1,
-                      ),
+                      child: HeroPreview(hero: HeroRoster.all.last, facing: -1),
                     ),
                   ],
                 ),
@@ -101,7 +96,9 @@ class MainMenuScreen extends StatelessWidget {
                         child: Text(
                           step,
                           style: const TextStyle(
-                              color: AppColors.ink, fontSize: 17),
+                            color: AppColors.ink,
+                            fontSize: 17,
+                          ),
                         ),
                       ),
                     ],

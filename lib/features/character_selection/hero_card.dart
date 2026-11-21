@@ -48,7 +48,10 @@ class HeroCard extends StatelessWidget {
               ),
               boxShadow: [
                 if (selected)
-                  BoxShadow(color: accent.withValues(alpha: 0.6), blurRadius: 14),
+                  BoxShadow(
+                    color: accent.withValues(alpha: 0.6),
+                    blurRadius: 14,
+                  ),
               ],
             ),
             child: Column(
@@ -69,7 +72,9 @@ class HeroCard extends StatelessWidget {
                     child: HeroPreview(
                       hero: hero,
                       facing: facing,
-                      state: selected ? FighterState.victory : FighterState.idle,
+                      state: selected
+                          ? FighterState.victory
+                          : FighterState.idle,
                       animate: !disabled,
                     ),
                   ),

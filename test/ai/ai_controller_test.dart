@@ -9,7 +9,10 @@ import '../helpers.dart';
 
 void main() {
   test('approaches a distant player', () {
-    final ai = AiController(difficulty: AiDifficulty.hard, random: math.Random(1));
+    final ai = AiController(
+      difficulty: AiDifficulty.hard,
+      random: math.Random(1),
+    );
     final self = makeFighter(x: 1000, facing: -1);
     final target = makeFighter(x: 200);
     final startX = self.x;
@@ -21,7 +24,10 @@ void main() {
   });
 
   test('attacks when in range', () {
-    final ai = AiController(difficulty: AiDifficulty.normal, random: math.Random(2));
+    final ai = AiController(
+      difficulty: AiDifficulty.normal,
+      random: math.Random(2),
+    );
     final self = makeFighter(x: 600, facing: -1);
     final target = makeFighter(x: 480);
     final start = self.attackSerial;
@@ -45,7 +51,10 @@ void main() {
       return self.attackSerial;
     }
 
-    expect(attacksFor(AiDifficulty.easy), lessThan(attacksFor(AiDifficulty.hard)));
+    expect(
+      attacksFor(AiDifficulty.easy),
+      lessThan(attacksFor(AiDifficulty.hard)),
+    );
   });
 
   test('does nothing once the round is over', () {

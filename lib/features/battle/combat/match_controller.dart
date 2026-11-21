@@ -16,17 +16,17 @@ class MatchController {
   MatchController({
     required HeroDefinition playerHero,
     required HeroDefinition opponentHero,
-  })  : player = Fighter(
-          hero: playerHero,
-          x: GameConstants.worldWidth * 0.3,
-          facing: 1,
-          isPlayer: true,
-        ),
-        opponent = Fighter(
-          hero: opponentHero,
-          x: GameConstants.worldWidth * 0.7,
-          facing: -1,
-        );
+  }) : player = Fighter(
+         hero: playerHero,
+         x: GameConstants.worldWidth * 0.3,
+         facing: 1,
+         isPlayer: true,
+       ),
+       opponent = Fighter(
+         hero: opponentHero,
+         x: GameConstants.worldWidth * 0.7,
+         facing: -1,
+       );
 
   final Fighter player;
   final Fighter opponent;
@@ -56,7 +56,9 @@ class MatchController {
     opponent.update(dt, controlsLive ? opponentInput : FighterInput.none);
 
     if (phase == MatchPhase.intro) {
-      if (phaseTime >= GameConstants.introSeconds) _setPhase(MatchPhase.fighting);
+      if (phaseTime >= GameConstants.introSeconds) {
+        _setPhase(MatchPhase.fighting);
+      }
       return events;
     }
 
@@ -83,9 +85,11 @@ class MatchController {
       if ((player.health - opponent.health).abs() < 0.5) {
         _finish(MatchOutcome.draw);
       } else {
-        _finish(player.health > opponent.health
-            ? MatchOutcome.playerWins
-            : MatchOutcome.opponentWins);
+        _finish(
+          player.health > opponent.health
+              ? MatchOutcome.playerWins
+              : MatchOutcome.opponentWins,
+        );
       }
     }
   }

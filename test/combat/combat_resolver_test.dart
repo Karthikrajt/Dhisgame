@@ -9,8 +9,11 @@ import '../helpers.dart';
 
 /// Swings [attacker]'s punch for its full duration against [defender] and
 /// returns every hit that landed.
-List<HitEvent> swing(Fighter attacker, Fighter defender,
-    {FighterInput defend = FighterInput.none}) {
+List<HitEvent> swing(
+  Fighter attacker,
+  Fighter defender, {
+  FighterInput defend = FighterInput.none,
+}) {
   final hits = <HitEvent>[];
   attacker.update(frame, const FighterInput(punch: true));
   for (var i = 0; i < 40; i++) {
@@ -83,15 +86,16 @@ void main() {
     final a = makeFighter(x: 600);
     final b = makeFighter(x: 610);
     CombatResolver.separate(a, b);
-    expect((b.x - a.x).abs(),
-        closeTo(GameConstants.minSeparation, 0.001));
+    expect((b.x - a.x).abs(), closeTo(GameConstants.minSeparation, 0.001));
   });
 
   test('separate works against a wall', () {
     final a = makeFighter(x: GameConstants.arenaLeft);
     final b = makeFighter(x: GameConstants.arenaLeft + 5);
     CombatResolver.separate(a, b);
-    expect((b.x - a.x).abs(),
-        greaterThanOrEqualTo(GameConstants.minSeparation - 0.001));
+    expect(
+      (b.x - a.x).abs(),
+      greaterThanOrEqualTo(GameConstants.minSeparation - 0.001),
+    );
   });
 }

@@ -41,7 +41,11 @@ class CharacterSelectScreen extends ConsumerWidget {
                   const Expanded(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: ComicText(AppStrings.selectHero, size: 30, outline: 6),
+                      child: ComicText(
+                        AppStrings.selectHero,
+                        size: 30,
+                        outline: 6,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 48),
@@ -69,7 +73,9 @@ class CharacterSelectScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Center(child: ComicText('VS', size: 34, color: AppColors.cream)),
+                    Center(
+                      child: ComicText('VS', size: 34, color: AppColors.cream),
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
                       child: _Panel(

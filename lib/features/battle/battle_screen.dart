@@ -148,8 +148,8 @@ class _BattleScreenState extends ConsumerState<BattleScreen>
               _PauseMenu(
                 onResume: _resume,
                 onRestart: _restart,
-                onMenu: () => Navigator.of(context)
-                    .popUntil((route) => route.isFirst),
+                onMenu: () =>
+                    Navigator.of(context).popUntil((route) => route.isFirst),
               ),
           ],
         ),

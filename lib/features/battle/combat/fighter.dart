@@ -60,11 +60,11 @@ class Fighter {
 
   /// Body area that can be hit.
   Rect get hurtbox => Rect.fromLTRB(
-        x - GameConstants.fighterHalfWidth,
-        y - GameConstants.fighterHeight,
-        x + GameConstants.fighterHalfWidth,
-        y,
-      );
+    x - GameConstants.fighterHalfWidth,
+    y - GameConstants.fighterHeight,
+    x + GameConstants.fighterHalfWidth,
+    y,
+  );
 
   /// The live attack area, or null when no attack can currently connect.
   ///
@@ -139,7 +139,9 @@ class Fighter {
     }
 
     if (canAttack && (input.punch || input.kick)) {
-      _startAttack(input.kick && !input.punch ? AttackType.kick : AttackType.punch);
+      _startAttack(
+        input.kick && !input.punch ? AttackType.kick : AttackType.punch,
+      );
       return;
     }
 

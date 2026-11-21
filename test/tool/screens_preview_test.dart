@@ -25,17 +25,25 @@ void main() {
         ? fontDir
         : '${Platform.environment['FLUTTER_ROOT'] ?? '/opt/sdk/flutter'}/bin/cache/artifacts/material_fonts';
     final roboto = FontLoader('Roboto');
-    for (final f in ['Roboto-Regular.ttf', 'Roboto-Bold.ttf', 'Roboto-Black.ttf']) {
+    for (final f in [
+      'Roboto-Regular.ttf',
+      'Roboto-Bold.ttf',
+      'Roboto-Black.ttf',
+    ]) {
       final file = File('$dir/$f');
       if (file.existsSync()) {
-        roboto.addFont(Future.value(ByteData.sublistView(file.readAsBytesSync())));
+        roboto.addFont(
+          Future.value(ByteData.sublistView(file.readAsBytesSync())),
+        );
       }
     }
     await roboto.load();
     final icons = FontLoader('MaterialIcons');
     final iconFile = File('$dir/MaterialIcons-Regular.otf');
     if (iconFile.existsSync()) {
-      icons.addFont(Future.value(ByteData.sublistView(iconFile.readAsBytesSync())));
+      icons.addFont(
+        Future.value(ByteData.sublistView(iconFile.readAsBytesSync())),
+      );
       await icons.load();
     }
   }
@@ -64,10 +72,12 @@ void main() {
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(RepaintBoundary(
-      key: key,
-      child: const ProviderScope(child: SuperheroShowdownApp()),
-    ));
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: key,
+        child: const ProviderScope(child: SuperheroShowdownApp()),
+      ),
+    );
     await pumpFor(tester, 0.5);
     await shot(tester, 'menu');
 
@@ -93,15 +103,17 @@ void main() {
     tester.view.physicalSize = const Size(1600, 720);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(RepaintBoundary(
-      key: key,
-      child: const ProviderScope(
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: ResultScreen(outcome: MatchOutcome.playerWins),
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: key,
+        child: const ProviderScope(
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: ResultScreen(outcome: MatchOutcome.playerWins),
+          ),
         ),
       ),
-    ));
+    );
     await pumpFor(tester, 1);
     await shot(tester, 'victory');
   });

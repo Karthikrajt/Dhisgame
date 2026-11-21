@@ -12,9 +12,9 @@ import 'package:superhero_showdown/features/battle/combat/match_controller.dart'
 import '../helpers.dart';
 
 MatchController newMatch() => MatchController(
-      playerHero: HeroRoster.spiderShadow,
-      opponentHero: HeroRoster.darkKnight,
-    );
+  playerHero: HeroRoster.spiderShadow,
+  opponentHero: HeroRoster.darkKnight,
+);
 
 void main() {
   test('input is ignored during the intro', () {
@@ -67,7 +67,11 @@ void main() {
       final ai = AiController(random: math.Random(seed));
       var t = 0.0;
       while (t < 90 && m.outcome == null) {
-        m.update(frame, mashScript(m, t), ai.think(frame, m.opponent, m.player));
+        m.update(
+          frame,
+          mashScript(m, t),
+          ai.think(frame, m.opponent, m.player),
+        );
         t += frame;
       }
       expect(m.outcome, MatchOutcome.playerWins, reason: 'seed $seed');
@@ -76,8 +80,14 @@ void main() {
 
   test('a full AI vs AI match finishes with a result', () {
     final m = newMatch();
-    final a = AiController(difficulty: AiDifficulty.hard, random: math.Random(10));
-    final b = AiController(difficulty: AiDifficulty.hard, random: math.Random(11));
+    final a = AiController(
+      difficulty: AiDifficulty.hard,
+      random: math.Random(10),
+    );
+    final b = AiController(
+      difficulty: AiDifficulty.hard,
+      random: math.Random(11),
+    );
     var hits = 0;
     for (var t = 0.0; t < 120 && !m.readyForResults; t += frame) {
       hits += m

@@ -104,7 +104,11 @@ class _HeroPainter extends CustomPainter {
 
 /// Static head portrait used in the HUD.
 class HeroPortrait extends StatelessWidget {
-  const HeroPortrait({super.key, required this.hero, this.mood = EyeMood.normal});
+  const HeroPortrait({
+    super.key,
+    required this.hero,
+    this.mood = EyeMood.normal,
+  });
 
   final HeroDefinition hero;
   final EyeMood mood;

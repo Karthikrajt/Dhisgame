@@ -55,7 +55,9 @@ class BattleHud extends StatelessWidget {
             ],
           ),
         ),
-        Center(child: IgnorePointer(child: _Banner(state: state))),
+        Center(
+          child: IgnorePointer(child: _Banner(state: state)),
+        ),
       ],
     );
   }
@@ -93,8 +95,8 @@ class _FighterBar extends StatelessWidget {
             mood: health <= 0
                 ? EyeMood.dizzy
                 : health < 0.3
-                    ? EyeMood.focused
-                    : EyeMood.normal,
+                ? EyeMood.focused
+                : EyeMood.normal,
           ),
         ),
       ),
@@ -102,8 +104,9 @@ class _FighterBar extends StatelessWidget {
 
     final bars = Expanded(
       child: Column(
-        crossAxisAlignment:
-            alignRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: alignRight
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           HealthBar(value: health, reversed: alignRight),
           const SizedBox(height: 4),
@@ -141,8 +144,11 @@ class HealthBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final align = reversed ? Alignment.centerRight : Alignment.centerLeft;
     final v = value.clamp(0.0, 1.0);
-    final color = Color.lerp(AppColors.healthLow, AppColors.health,
-        ((v - 0.2) / 0.4).clamp(0.0, 1.0))!;
+    final color = Color.lerp(
+      AppColors.healthLow,
+      AppColors.health,
+      ((v - 0.2) / 0.4).clamp(0.0, 1.0),
+    )!;
     return Container(
       height: 24,
       decoration: BoxDecoration(

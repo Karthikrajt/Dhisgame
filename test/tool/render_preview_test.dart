@@ -45,11 +45,43 @@ void main() {
         canvas.restore();
       }
     }
-    final img = await rec
-        .endRecording()
-        .toImage((cell * states.length).toInt(), 300 * HeroRoster.all.length);
+    final img = await rec.endRecording().toImage(
+      (cell * states.length).toInt(),
+      300 * HeroRoster.all.length,
+    );
     final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
     Directory('build/preview').createSync(recursive: true);
-    File('build/preview/heroes.png').writeAsBytesSync(bytes!.buffer.asUint8List());
+    File('build/preview/heroes.png')
+        .writeAsBytesSync(bytes!.buffer.asUint8List());
+  });
+
+  test('render close-up', () async {
+    final rec = ui.PictureRecorder();
+    final canvas = ui.Canvas(rec);
+    canvas.drawColor(const ui.Color(0xFFDDE6F5), ui.BlendMode.src);
+    final poses = [
+      (FighterState.idle, 0.3, null),
+      (FighterState.punching, 0.12, AttackData.punch),
+      (FighterState.kicking, 0.2, AttackData.kick),
+    ];
+    for (var h = 0; h < HeroRoster.all.length; h++) {
+      for (var i = 0; i < poses.length; i++) {
+        final (st, t, atk) = poses[i];
+        canvas.save();
+        canvas.translate((h * 3 + i) * 330.0 + 140, 580);
+        canvas.scale(2);
+        HeroRenderer.paint(
+          canvas,
+          HeroRoster.all[h].look,
+          HeroPose.forState(st, stateTime: t, animTime: 1.3, attack: atk),
+          time: 1.3,
+        );
+        canvas.restore();
+      }
+    }
+    final img = await rec.endRecording().toImage(1980, 600);
+    final bytes = await img.toByteData(format: ui.ImageByteFormat.png);
+    File('build/preview/heroes_closeup.png')
+        .writeAsBytesSync(bytes!.buffer.asUint8List());
   });
 }

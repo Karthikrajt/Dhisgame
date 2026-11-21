@@ -29,13 +29,13 @@ class ResultScreen extends ConsumerWidget {
     final title = won
         ? AppStrings.victory
         : lost
-            ? AppStrings.defeat
-            : AppStrings.draw;
+        ? AppStrings.defeat
+        : AppStrings.draw;
     final line = won
         ? AppStrings.victoryLine
         : lost
-            ? AppStrings.defeatLine
-            : AppStrings.drawLine;
+        ? AppStrings.defeatLine
+        : AppStrings.drawLine;
 
     return Scaffold(
       body: MenuBackground(
@@ -85,8 +85,9 @@ class ResultScreen extends ConsumerWidget {
                           label: AppStrings.tryAgain,
                           icon: Icons.replay_rounded,
                           width: 270,
-                          onPressed: () => Navigator.of(context)
-                              .pushReplacementNamed(Routes.versus),
+                          onPressed: () =>
+                              Navigator.of(context)
+                                  .pushReplacementNamed(Routes.versus),
                         ),
                         const SizedBox(height: 12),
                         ArcadeButton(
@@ -95,8 +96,9 @@ class ResultScreen extends ConsumerWidget {
                           width: 270,
                           fontSize: 20,
                           color: AppColors.playerAccent,
-                          onPressed: () => Navigator.of(context)
-                              .popUntil((r) => r.settings.name == Routes.select),
+                          onPressed: () => Navigator.of(
+                            context,
+                          ).popUntil((r) => r.settings.name == Routes.select),
                         ),
                         const SizedBox(height: 12),
                         ArcadeButton(
@@ -155,9 +157,7 @@ class _StarShowerState extends State<_StarShower>
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: CustomPaint(painter: _StarPainter(_c)),
-    );
+    return IgnorePointer(child: CustomPaint(painter: _StarPainter(_c)));
   }
 }
 
@@ -179,8 +179,8 @@ class _StarPainter extends CustomPainter {
       final r = math.Random(i);
       final x = r.nextDouble() * size.width;
       final speed = 0.6 + r.nextDouble() * 0.6;
-      final y = ((anim.value * speed + r.nextDouble()) % 1.0) *
-              (size.height + 40) -
+      final y =
+          ((anim.value * speed + r.nextDouble()) % 1.0) * (size.height + 40) -
           20;
       final s = 5 + r.nextDouble() * 7;
       paint.color = _colors[i % _colors.length].withValues(alpha: 0.85);

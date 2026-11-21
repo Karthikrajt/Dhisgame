@@ -289,11 +289,11 @@ class HeroPose {
         return HeroPose.lerp(guard, hurt, t);
       case FighterState.knockout:
         final t = _ease(stateTime / 0.45);
-        return HeroPose.lerp(hurt, knockedOut, t).copyWith(
-          lie: t,
-          grounded: true,
-          mood: EyeMood.dizzy,
-        );
+        return HeroPose.lerp(
+          hurt,
+          knockedOut,
+          t,
+        ).copyWith(lie: t, grounded: true, mood: EyeMood.dizzy);
       case FighterState.victory:
         final bounce = -(math.sin(animTime * 5.5).abs()) * 10;
         final arm = 0.15 * math.sin(animTime * 5.5);

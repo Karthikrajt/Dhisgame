@@ -33,8 +33,10 @@ class _RaysPainter extends CustomPainter {
       final path = Path()
         ..moveTo(center.dx, center.dy)
         ..lineTo(center.dx + math.cos(a) * r, center.dy + math.sin(a) * r)
-        ..lineTo(center.dx + math.cos(a + 0.12) * r,
-            center.dy + math.sin(a + 0.12) * r)
+        ..lineTo(
+          center.dx + math.cos(a + 0.12) * r,
+          center.dy + math.sin(a + 0.12) * r,
+        )
         ..close();
       canvas.drawPath(path, paint);
     }

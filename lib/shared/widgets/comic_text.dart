@@ -40,7 +40,11 @@ class ComicText extends StatelessWidget {
               ..color = AppColors.ink,
           ),
         ),
-        Text(text, textAlign: textAlign, style: style.copyWith(color: color)),
+        Text(
+          text,
+          textAlign: textAlign,
+          style: style.copyWith(color: color),
+        ),
       ],
     );
   }

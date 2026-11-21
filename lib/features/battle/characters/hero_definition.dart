@@ -79,12 +79,17 @@ class HeroDefinition {
   final double kickDamage;
   final double reach;
 
-  AttackData get punch => AttackData.punch
-      .scaled(damage: punchDamage, speed: attackSpeed, reach: reach);
+  AttackData get punch => AttackData.punch.scaled(
+    damage: punchDamage,
+    speed: attackSpeed,
+    reach: reach,
+  );
 
-  AttackData get kick => AttackData.kick
-      .scaled(damage: kickDamage, speed: attackSpeed, reach: reach);
+  AttackData get kick => AttackData.kick.scaled(
+    damage: kickDamage,
+    speed: attackSpeed,
+    reach: reach,
+  );
 
-  AttackData attack(AttackType type) =>
-      type == AttackType.punch ? punch : kick;
+  AttackData attack(AttackType type) => type == AttackType.punch ? punch : kick;
 }

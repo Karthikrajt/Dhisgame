@@ -13,7 +13,7 @@ enum AiIntent { wait, approach, keepDistance, retreat, attack, block, jump }
 /// holds that decision, which gives young players time to react.
 class AiController {
   AiController({this.difficulty = AiDifficulty.easy, math.Random? random})
-      : _random = random ?? math.Random();
+    : _random = random ?? math.Random();
 
   final AiDifficulty difficulty;
   final math.Random _random;
@@ -52,7 +52,8 @@ class AiController {
 
     if (_thinkTimer <= 0) {
       _decide(self, target, distance);
-      _thinkTimer = difficulty.reactionTime * (0.8 + _random.nextDouble() * 0.4);
+      _thinkTimer =
+          difficulty.reactionTime * (0.8 + _random.nextDouble() * 0.4);
     }
 
     return _act(self, target, distance);
@@ -65,7 +66,9 @@ class AiController {
     _attackIssued = false;
     final lowHealth = self.healthFraction < 0.35;
 
-    if (lowHealth && distance < preferredDistance && _random.nextDouble() < 0.3) {
+    if (lowHealth &&
+        distance < preferredDistance &&
+        _random.nextDouble() < 0.3) {
       _intent = AiIntent.retreat;
       return;
     }
@@ -106,11 +109,7 @@ class AiController {
         return const FighterInput(block: true);
       case AiIntent.jump:
         _intent = AiIntent.approach;
-        return FighterInput(
-          jump: true,
-          left: toward < 0,
-          right: toward > 0,
-        );
+        return FighterInput(jump: true, left: toward < 0, right: toward > 0);
       case AiIntent.attack:
         if (distance > attackRange) return _move(toward);
         if (_attackIssued) return FighterInput.none;

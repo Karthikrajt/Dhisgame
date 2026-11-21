@@ -35,7 +35,13 @@ class NeonRooftopArena extends Component {
   @override
   Future<void> onLoad() async {
     _far = _makeBuildings(count: 26, minH: 160, maxH: 330, minW: 70, maxW: 140);
-    _mid = _makeBuildings(count: 16, minH: 220, maxH: 420, minW: 110, maxW: 190);
+    _mid = _makeBuildings(
+      count: 16,
+      minH: 220,
+      maxH: 420,
+      minW: 110,
+      maxW: 190,
+    );
     _clouds = List.generate(
       6,
       (i) => _Cloud(
@@ -70,14 +76,16 @@ class NeonRooftopArena extends Component {
     while (list.length < count && x < _right) {
       final w = minW + _rng.nextDouble() * (maxW - minW);
       final h = minH + _rng.nextDouble() * (maxH - minH);
-      list.add(_Building(
-        x: x,
-        width: w,
-        height: h,
-        hue: _rng.nextInt(3),
-        sign: _rng.nextDouble() < 0.35,
-        seed: _rng.nextInt(1 << 20),
-      ));
+      list.add(
+        _Building(
+          x: x,
+          width: w,
+          height: h,
+          hue: _rng.nextInt(3),
+          sign: _rng.nextDouble() < 0.35,
+          seed: _rng.nextInt(1 << 20),
+        ),
+      );
       x += w + 6 + _rng.nextDouble() * 30;
     }
     return list;
@@ -155,7 +163,10 @@ class NeonRooftopArena extends Component {
     const base = GameConstants.groundY - 60;
     for (final b in _far) {
       p.color = const Color(0xFF3A2A6E);
-      c.drawRect(Rect.fromLTWH(b.x, base - b.height, b.width, b.height + 400), p);
+      c.drawRect(
+        Rect.fromLTWH(b.x, base - b.height, b.width, b.height + 400),
+        p,
+      );
       final r = math.Random(b.seed);
       p.color = const Color(0x66FFD98A);
       for (var wy = base - b.height + 16; wy < base - 10; wy += 22) {
@@ -174,19 +185,34 @@ class NeonRooftopArena extends Component {
     for (final cl in _clouds) {
       final s = cl.scale;
       canvas.drawOval(
-          Rect.fromCenter(center: Offset(cl.x, cl.y), width: 180 * s, height: 40 * s),
-          _paint);
+        Rect.fromCenter(
+          center: Offset(cl.x, cl.y),
+          width: 180 * s,
+          height: 40 * s,
+        ),
+        _paint,
+      );
       canvas.drawOval(
-          Rect.fromCenter(
-              center: Offset(cl.x + 30 * s, cl.y - 14 * s),
-              width: 100 * s,
-              height: 36 * s),
-          _paint);
+        Rect.fromCenter(
+          center: Offset(cl.x + 30 * s, cl.y - 14 * s),
+          width: 100 * s,
+          height: 36 * s,
+        ),
+        _paint,
+      );
     }
   }
 
-  static const _neon = [Color(0xFFFF5FA2), Color(0xFF5FE1FF), Color(0xFFFFD25F)];
-  static const _bodies = [Color(0xFF241A4A), Color(0xFF2C1F55), Color(0xFF1E1840)];
+  static const _neon = [
+    Color(0xFFFF5FA2),
+    Color(0xFF5FE1FF),
+    Color(0xFFFFD25F),
+  ];
+  static const _bodies = [
+    Color(0xFF241A4A),
+    Color(0xFF2C1F55),
+    Color(0xFF1E1840),
+  ];
 
   void _midSkyline(Canvas canvas) {
     const base = GameConstants.groundY - 30;
@@ -202,10 +228,14 @@ class NeonRooftopArena extends Component {
       for (var wy = base - b.height + 22; wy < base - 20; wy += 30) {
         for (var wx = b.x + 14; wx < b.x + b.width - 20; wx += 26) {
           final lit = r.nextDouble() < 0.45;
-          _paint.color = lit ? const Color(0xAAFFE7A8) : const Color(0x33000000);
+          _paint.color = lit
+              ? const Color(0xAAFFE7A8)
+              : const Color(0x33000000);
           canvas.drawRRect(
             RRect.fromRectAndRadius(
-                Rect.fromLTWH(wx, wy, 12, 16), const Radius.circular(2)),
+              Rect.fromLTWH(wx, wy, 12, 16),
+              const Radius.circular(2),
+            ),
             _paint,
           );
         }
@@ -216,20 +246,27 @@ class NeonRooftopArena extends Component {
         final glow = 0.75 + 0.25 * math.sin(_time * 1.6 + b.seed % 10);
         final color = _neon[b.hue];
         final sign = Rect.fromLTWH(
-            b.x + b.width * 0.2, base - b.height + 26, b.width * 0.6, 26);
+          b.x + b.width * 0.2,
+          base - b.height + 26,
+          b.width * 0.6,
+          26,
+        );
         _paint
           ..color = color.withValues(alpha: 0.35 * glow)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12);
         canvas.drawRRect(
-            RRect.fromRectAndRadius(sign.inflate(6), const Radius.circular(10)),
-            _paint);
+          RRect.fromRectAndRadius(sign.inflate(6), const Radius.circular(10)),
+          _paint,
+        );
         _paint.maskFilter = null;
         _paint
           ..style = PaintingStyle.stroke
           ..strokeWidth = 4
           ..color = color.withValues(alpha: 0.6 + 0.4 * glow);
         canvas.drawRRect(
-            RRect.fromRectAndRadius(sign, const Radius.circular(8)), _paint);
+          RRect.fromRectAndRadius(sign, const Radius.circular(8)),
+          _paint,
+        );
         _paint.style = PaintingStyle.fill;
       }
     }
@@ -268,7 +305,11 @@ class NeonRooftopArena extends Component {
     for (var x = _left; x < _right; x += 90) {
       canvas.drawLine(Offset(x, g + 5), Offset(x - 40, g + 140), _paint);
     }
-    canvas.drawLine(const Offset(_left, g + 50), const Offset(_right, g + 50), _paint);
+    canvas.drawLine(
+      const Offset(_left, g + 50),
+      const Offset(_right, g + 50),
+      _paint,
+    );
 
     // Neon floor strip reflecting the city glow.
     _paint.color = const Color(0x40FF5FA2);
@@ -278,7 +319,10 @@ class NeonRooftopArena extends Component {
   void _waterTower(Canvas canvas, Offset base) {
     _paint.color = const Color(0xFF231B42);
     for (final dx in [-40.0, 40.0]) {
-      canvas.drawRect(Rect.fromLTWH(base.dx + dx - 4, base.dy - 150, 8, 150), _paint);
+      canvas.drawRect(
+        Rect.fromLTWH(base.dx + dx - 4, base.dy - 150, 8, 150),
+        _paint,
+      );
     }
     final tank = RRect.fromRectAndRadius(
       Rect.fromLTWH(base.dx - 60, base.dy - 260, 120, 120),
@@ -301,8 +345,9 @@ class NeonRooftopArena extends Component {
     _paint.color = const Color(0xFF3A3263);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-          Rect.fromLTWH(base.dx - 70, base.dy - 80, 140, 80),
-          const Radius.circular(8)),
+        Rect.fromLTWH(base.dx - 70, base.dy - 80, 140, 80),
+        const Radius.circular(8),
+      ),
       _paint,
     );
     // Slowly spinning fan.
@@ -325,7 +370,11 @@ class NeonRooftopArena extends Component {
       ..color = const Color(0xFF231B42)
       ..strokeWidth = 6;
     canvas.drawLine(base, base + const Offset(0, -240), _paint);
-    canvas.drawLine(base + const Offset(-30, -180), base + const Offset(30, -180), _paint);
+    canvas.drawLine(
+      base + const Offset(-30, -180),
+      base + const Offset(30, -180),
+      _paint,
+    );
     // Soft beacon light that fades in and out slowly (no blinking).
     final glow = 0.5 + 0.5 * math.sin(_time * 1.2);
     _paint
@@ -365,7 +414,12 @@ class _Building {
 }
 
 class _Cloud {
-  _Cloud({required this.x, required this.y, required this.scale, required this.speed});
+  _Cloud({
+    required this.x,
+    required this.y,
+    required this.scale,
+    required this.speed,
+  });
   double x;
   final double y;
   final double scale;
