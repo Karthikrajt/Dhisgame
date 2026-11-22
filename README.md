@@ -45,6 +45,11 @@ powering up, so the move always comes out.
 - Cartoon knockout with dizzy eyes, orbiting stars and smoke puffs.
 - Victory, defeat and draw screens with Try Again, Change Heroes and Main Menu.
 - Pause button, pause menu and automatic pause when the app is backgrounded.
+- Original sound: punches, kicks, blocks, jumps, landings, each superpower,
+  KO, victory and defeat jingles, button taps, plus menu and battle music
+  loops. A speaker button on the main menu and pause menu turns sound off.
+  All audio is synthesised by `tool/generate_sounds.py` (re-run it to
+  regenerate `assets/audio/`), and volumes are kept gentle for children.
 
 ## Controls
 

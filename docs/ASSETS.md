@@ -17,14 +17,17 @@ below are needed to reach the final art and sound targets.
 | Title logo | Outlined system font | Designed logo |
 | App icon | Flutter default icon | Custom adaptive launcher icon |
 
+## Audio (procedural placeholders in place)
+
+All sound effects and both music loops are synthesised by
+`tool/generate_sounds.py` into `assets/audio/`. They work in the game today;
+a sound designer can replace any file with a richer version of the same name.
+
 ## Missing entirely
 
 | Item | Needed for |
 | --- | --- |
-| Arena music (one loop per arena) | Milestone 4 |
-| Menu music | Milestone 4 |
-| Punch, kick, block, jump, land, KO sound effects | Milestone 4 |
-| UI sounds (button tap, select, VS sting) | Milestone 4 |
+| One music loop per arena (only one battle loop today) | Milestone 3/4 |
 | English and Tamil voice lines ("Ready", "Fight", "Victory", "Try again", hero names) | Milestone 4 |
 | Display font with Tamil glyph support | Milestone 4 |
 

@@ -7,12 +7,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show KeyEventResult;
 
+import '../../../core/audio/game_audio.dart';
 import '../../../core/constants/game_constants.dart';
 import '../ai/ai_controller.dart';
 import '../ai/ai_difficulty.dart';
 import '../arenas/neon_rooftop_arena.dart';
 import '../characters/hero_definition.dart';
+import '../combat/attack_data.dart';
 import '../combat/combat_resolver.dart';
+import '../combat/fighter.dart';
+import '../combat/fighter_state.dart';
 import '../combat/match_controller.dart';
 import '../components/fighter_component.dart';
 import '../controls/control_input.dart';
@@ -49,6 +53,9 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
   late AiController ai;
   final ValueNotifier<HudState?> hud = ValueNotifier(null);
   bool _ended = false;
+  final Map<Fighter, FighterState> _lastState = {};
+  final Set<Fighter> _powerSoundPlayed = {};
+  MatchPhase? _lastPhase;
   bool _koEffectsShown = false;
 
   @override
@@ -100,6 +107,7 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
 
     final aiInput = ai.think(step, match.opponent, match.player);
     final events = match.update(step, input.consume(step), aiInput);
+    _playSounds(events);
     for (final p in match.spawned) {
       world.add(ProjectileComponent(p));
     }
@@ -127,6 +135,61 @@ class SuperheroGame extends FlameGame with KeyboardEvents {
     if (match.readyForResults && !_ended) {
       _ended = true;
       onMatchEnd?.call(match.outcome!);
+    }
+  }
+
+  GameAudio get _audio => GameAudio.instance;
+
+  /// Turns what happened this frame into sound effects.
+  void _playSounds(List<HitEvent> events) {
+    if (_lastPhase != match.phase) {
+      if (match.phase == MatchPhase.intro) _audio.play(Sfx.ready);
+      if (match.phase == MatchPhase.fighting) _audio.play(Sfx.fight);
+      if (match.phase == MatchPhase.finished) {
+        final ko = match.player.isKnockedOut || match.opponent.isKnockedOut;
+        _audio.play(ko ? Sfx.ko : Sfx.ready);
+      }
+      _lastPhase = match.phase;
+    }
+
+    for (final f in [match.player, match.opponent]) {
+      final volume = f.isPlayer ? 1.0 : 0.8;
+      final prev = _lastState[f];
+      final now = f.state;
+      if (prev != now) {
+        if (now == FighterState.jumping) {
+          _audio.play(Sfx.jump, volume: 0.7 * volume);
+        }
+        if (prev != null && prev.isAirborneState && now == FighterState.idle) {
+          _audio.play(Sfx.land, volume: 0.6 * volume);
+        }
+        if (now == FighterState.special) {
+          _powerSoundPlayed.remove(f);
+          _audio.play(Sfx.powerCharge, volume: volume);
+        }
+        _lastState[f] = now;
+      }
+      if (now == FighterState.special &&
+          f.specialReleased &&
+          _powerSoundPlayed.add(f)) {
+        _audio.play(switch (f.hero.special.kind) {
+          SpecialKind.projectile =>
+            f.hero.special.hitStun > 0.8 ? Sfx.powerWeb : Sfx.powerPlasma,
+          SpecialKind.beam => Sfx.powerBeam,
+          SpecialKind.shockwave => Sfx.powerStomp,
+          SpecialKind.dash => Sfx.powerDash,
+        }, volume: volume);
+      }
+    }
+
+    for (final e in events) {
+      if (e.blocked) {
+        _audio.play(Sfx.block);
+      } else if (e.isSpecial) {
+        _audio.play(Sfx.hit);
+      } else {
+        _audio.play(e.type == AttackType.kick ? Sfx.kick : Sfx.punch);
+      }
     }
   }
 

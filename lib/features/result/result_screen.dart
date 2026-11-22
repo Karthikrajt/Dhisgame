@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/battle_setup.dart';
 import '../../app/routes.dart';
+import '../../core/audio/game_audio.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../shared/widgets/arcade_button.dart';
@@ -96,9 +97,12 @@ class ResultScreen extends ConsumerWidget {
                           width: 270,
                           fontSize: 20,
                           color: AppColors.playerAccent,
-                          onPressed: () => Navigator.of(
-                            context,
-                          ).popUntil((r) => r.settings.name == Routes.select),
+                          onPressed: () {
+                            GameAudio.instance.playMusic(Music.menu);
+                            Navigator.of(
+                              context,
+                            ).popUntil((r) => r.settings.name == Routes.select);
+                          },
                         ),
                         const SizedBox(height: 12),
                         ArcadeButton(
@@ -107,8 +111,10 @@ class ResultScreen extends ConsumerWidget {
                           width: 270,
                           fontSize: 20,
                           color: AppColors.cream,
-                          onPressed: () =>
-                              Navigator.of(context).popUntil((r) => r.isFirst),
+                          onPressed: () {
+                            GameAudio.instance.playMusic(Music.menu);
+                            Navigator.of(context).popUntil((r) => r.isFirst);
+                          },
                         ),
                       ],
                     ),

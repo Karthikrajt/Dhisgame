@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/audio/game_audio.dart';
 import '../../core/constants/app_colors.dart';
 
 /// Chunky comic-book style button with a press-down animation.
@@ -40,7 +41,12 @@ class _ArcadeButtonState extends State<ArcadeButton> {
         onTapDown: enabled ? (_) => setState(() => _down = true) : null,
         onTapCancel: () => setState(() => _down = false),
         onTapUp: enabled ? (_) => setState(() => _down = false) : null,
-        onTap: widget.onPressed,
+        onTap: enabled
+            ? () {
+                GameAudio.instance.play(Sfx.tap);
+                widget.onPressed!();
+              }
+            : null,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 80),
           width: widget.width,

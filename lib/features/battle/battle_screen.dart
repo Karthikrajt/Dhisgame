@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/battle_setup.dart';
+import '../../core/audio/game_audio.dart';
 import '../../app/routes.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../shared/widgets/arcade_button.dart';
 import '../../shared/widgets/comic_text.dart';
+import '../../shared/widgets/sound_toggle.dart';
 import 'combat/match_controller.dart';
 import 'controls/control_input.dart';
 import 'controls/touch_controls.dart';
@@ -36,6 +38,7 @@ class _BattleScreenState extends ConsumerState<BattleScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _game = _createGame();
+    GameAudio.instance.playMusic(Music.battle);
   }
 
   SuperheroGame _createGame() {
@@ -52,6 +55,9 @@ class _BattleScreenState extends ConsumerState<BattleScreen>
   void _onMatchEnd(MatchOutcome outcome) {
     if (_finished || !mounted) return;
     _finished = true;
+    GameAudio.instance
+      ..stopMusic()
+      ..play(outcome == MatchOutcome.opponentWins ? Sfx.defeat : Sfx.victory);
     Navigator.of(context)
         .pushReplacementNamed(Routes.result, arguments: outcome);
   }
@@ -152,8 +158,10 @@ class _BattleScreenState extends ConsumerState<BattleScreen>
               _PauseMenu(
                 onResume: _resume,
                 onRestart: _restart,
-                onMenu: () =>
-                    Navigator.of(context).popUntil((route) => route.isFirst),
+                onMenu: () {
+                  GameAudio.instance.playMusic(Music.menu);
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
               ),
           ],
         ),
@@ -183,7 +191,9 @@ class _PauseMenu extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const ComicText(AppStrings.paused, size: 52),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
+              const SoundToggle(),
+              const SizedBox(height: 12),
               ArcadeButton(
                 label: AppStrings.resume,
                 icon: Icons.play_arrow_rounded,

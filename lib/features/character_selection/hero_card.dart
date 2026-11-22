@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/audio/game_audio.dart';
 import '../../core/constants/app_colors.dart';
 import '../../shared/widgets/hero_preview.dart';
 import '../battle/characters/hero_definition.dart';
@@ -36,7 +37,12 @@ class HeroCard extends StatelessWidget {
       enabled: !disabled,
       label: hero.name,
       child: GestureDetector(
-        onTap: disabled ? null : onTap,
+        onTap: disabled
+            ? null
+            : () {
+                GameAudio.instance.play(Sfx.tap);
+                onTap();
+              },
         child: AnimatedOpacity(
           duration: const Duration(milliseconds: 200),
           opacity: disabled ? 0.45 : 1,

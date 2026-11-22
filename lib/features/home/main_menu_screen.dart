@@ -7,6 +7,7 @@ import '../../shared/widgets/arcade_button.dart';
 import '../../shared/widgets/comic_text.dart';
 import '../../shared/widgets/hero_preview.dart';
 import '../../shared/widgets/menu_background.dart';
+import '../../shared/widgets/sound_toggle.dart';
 import '../battle/characters/hero_roster.dart';
 import '../battle/combat/fighter_state.dart';
 
@@ -17,62 +18,67 @@ class MainMenuScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: MenuBackground(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 5,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const FittedBox(
-                      child: ComicText('SUPERHERO\nSHOWDOWN', size: 56),
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const FittedBox(
+                          child: ComicText('SUPERHERO\nSHOWDOWN', size: 56),
+                        ),
+                        const SizedBox(height: 24),
+                        ArcadeButton(
+                          label: AppStrings.startGame,
+                          icon: Icons.play_arrow_rounded,
+                          width: 280,
+                          onPressed: () =>
+                              Navigator.of(context).pushNamed(Routes.select),
+                        ),
+                        const SizedBox(height: 16),
+                        ArcadeButton(
+                          label: AppStrings.howToPlay,
+                          icon: Icons.help_outline_rounded,
+                          color: AppColors.playerAccent,
+                          width: 280,
+                          fontSize: 20,
+                          onPressed: () => _showHowToPlay(context),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 24),
-                    ArcadeButton(
-                      label: AppStrings.startGame,
-                      icon: Icons.play_arrow_rounded,
-                      width: 280,
-                      onPressed: () =>
-                          Navigator.of(context).pushNamed(Routes.select),
+                  ),
+                  Expanded(
+                    flex: 6,
+                    child: Row(
+                      children: [
+                        const Expanded(
+                          child: HeroPreview(hero: HeroRoster.spiderShadow),
+                        ),
+                        const Expanded(
+                          child: HeroPreview(
+                            hero: HeroRoster.solarMan,
+                            state: FighterState.victory,
+                          ),
+                        ),
+                        const Expanded(
+                          child: HeroPreview(
+                            hero: HeroRoster.thunderGiant,
+                            facing: -1,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 16),
-                    ArcadeButton(
-                      label: AppStrings.howToPlay,
-                      icon: Icons.help_outline_rounded,
-                      color: AppColors.playerAccent,
-                      width: 280,
-                      fontSize: 20,
-                      onPressed: () => _showHowToPlay(context),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Expanded(
-                flex: 6,
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: HeroPreview(hero: HeroRoster.spiderShadow),
-                    ),
-                    const Expanded(
-                      child: HeroPreview(
-                        hero: HeroRoster.solarMan,
-                        state: FighterState.victory,
-                      ),
-                    ),
-                    const Expanded(
-                      child: HeroPreview(
-                        hero: HeroRoster.thunderGiant,
-                        facing: -1,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+            const Positioned(top: 4, right: 8, child: SoundToggle()),
+          ],
         ),
       ),
     );

@@ -58,6 +58,9 @@ class Fighter {
 
   bool get onGround => y >= GameConstants.groundY - 0.01;
   bool get isKnockedOut => state == FighterState.knockout;
+
+  /// True once the current superpower has been released.
+  bool get specialReleased => _specialReleased;
   bool get energyFull => energy >= GameConstants.maxEnergy;
   double get energyFraction => (energy / GameConstants.maxEnergy).clamp(0, 1);
 
